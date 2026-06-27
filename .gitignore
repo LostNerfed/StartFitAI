@@ -27,6 +27,9 @@ releases/
 # ── Shell scripts / automation ───────────────────────────────────────
 *.sh
 
+# ── Design mockups ──────────────────────────────────────────────────
+mockups/
+
 # ── Temp / Patch / Recovery artifacts ────────────────────────────────
 *.orig
 *.rej

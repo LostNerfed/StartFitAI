@@ -549,14 +549,31 @@ fun ActiveWorkoutScreen(
             var selectedMuscle by remember { mutableStateOf("") }
             var dropdownExpanded by remember { mutableStateOf(false) }
 
-            val groupedExercises = remember(allExercises) {
-                allExercises.groupBy { it.category }.toSortedMap()
+            val displayedExercises = remember(allExercises, selectedMuscle) {
+                if (selectedMuscle.isEmpty()) allExercises else allExercises.filter { it.category == selectedMuscle }
+            }
+            
+            val groupedExercises = remember(displayedExercises) {
+                displayedExercises.groupBy { it.category }.toSortedMap()
             }
 
-            AlertDialog(
-                onDismissRequest = { showAddExerciseDialog = false },
-                title = { Text(text = stringResource(R.string.aw_new_exercise), fontWeight = FontWeight.Bold) },
-                text = {
+            androidx.compose.ui.window.Dialog(
+                onDismissRequest = { showAddExerciseDialog = false }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .supercardGlassModifier(RoundedCornerShape(20.dp))
+                        .padding(24.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.aw_new_exercise),
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         
                         // Category Selector
@@ -619,7 +636,7 @@ fun ActiveWorkoutScreen(
                         }
 
                         // Vertical grouped exercise list
-                        if (allExercises.isEmpty()) {
+                        if (displayedExercises.isEmpty()) {
                             Text(text = stringResource(R.string.aw_empty_list), fontSize = 11.sp, color = TextSecundario)
                         } else {
                             Column(
@@ -632,7 +649,7 @@ fun ActiveWorkoutScreen(
                                 Column(
                                     modifier = Modifier
                                         .verticalScroll(listScroll)
-                                        .padding(bottom = 8.dp)
+                                        .padding(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 8.dp)
                                 ) {
                                     val exerciseCategories = groupedExercises.entries.toList()
                                     exerciseCategories.forEachIndexed { catIdx, (category, exercises) ->
@@ -641,9 +658,9 @@ fun ActiveWorkoutScreen(
                                             fontSize = 11.sp,
                                             color = TextSecundario,
                                             fontWeight = FontWeight.Bold,
-                                            modifier = Modifier.padding(start = 14.dp, top = 12.dp, bottom = 4.dp)
+                                            modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
                                         )
-                                        HorizontalDivider(modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 4.dp), color = Color.White.copy(alpha = 0.2f))
+                                        HorizontalDivider(modifier = Modifier.padding(bottom = 4.dp), color = Color.White.copy(alpha = 0.2f))
                                         exercises.sortedBy { it.name }.forEachIndexed { index, exObj ->
                                             val isSelected = tempAddExerciseName == exObj.name
                                             Row(
@@ -689,8 +706,6 @@ fun ActiveWorkoutScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(4.dp))
-
                         OutlinedTextField(
                             value = tempAddExerciseName,
                             onValueChange = { tempAddExerciseName = it },
@@ -706,41 +721,41 @@ fun ActiveWorkoutScreen(
                             , focusedContainerColor = Color(0x05FFFFFF), unfocusedContainerColor = Color(0x05FFFFFF))
                         )
                     }
-                },
-                confirmButton = {
-                    val context = LocalContext.current
-                    TextButton(
-                        onClick = {
-                            if (selectedMuscle.isEmpty()) {
-                                android.widget.Toast.makeText(context, "Por favor, selecciona una categoría.", android.widget.Toast.LENGTH_SHORT).show()
-                            } else if (tempAddExerciseName.trim().isEmpty()) {
-                                android.widget.Toast.makeText(context, "Por favor, escribe el nombre del ejercicio.", android.widget.Toast.LENGTH_SHORT).show()
-                            } else {
-                                viewModel.addExerciseToActiveWorkout(tempAddExerciseName, selectedMuscle)
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        val context = LocalContext.current
+                        TextButton(
+                            onClick = {
                                 tempAddExerciseName = ""
                                 showAddExerciseDialog = false
                             }
+                        ) {
+                            Text(text = stringResource(R.string.aw_apply), color = TextSecundario)
                         }
-                    ) {
-                        Text(text = stringResource(R.string.aw_add), color = Color.White, fontWeight = FontWeight.Bold)
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            tempAddExerciseName = ""
-                            showAddExerciseDialog = false
+                        Spacer(modifier = Modifier.width(8.dp))
+                        TextButton(
+                            onClick = {
+                                if (selectedMuscle.isEmpty()) {
+                                    android.widget.Toast.makeText(context, "Por favor, selecciona una categoría.", android.widget.Toast.LENGTH_SHORT).show()
+                                } else if (tempAddExerciseName.trim().isEmpty()) {
+                                    android.widget.Toast.makeText(context, "Por favor, escribe el nombre del ejercicio.", android.widget.Toast.LENGTH_SHORT).show()
+                                } else {
+                                    viewModel.addExerciseToActiveWorkout(tempAddExerciseName, selectedMuscle)
+                                    tempAddExerciseName = ""
+                                    showAddExerciseDialog = false
+                                }
+                            }
+                        ) {
+                            Text(text = stringResource(R.string.aw_add), color = Color.White, fontWeight = FontWeight.Bold)
                         }
-                    ) {
-                        Text(text = stringResource(R.string.aw_apply), color = TextSecundario)
                     }
-                },
-                modifier = Modifier.supercardGlassModifier(RoundedCornerShape(20.dp)),
-                shape = RoundedCornerShape(20.dp),
-                containerColor = Color.Transparent,
-                titleContentColor = Color.White,
-                textContentColor = Color.White
-            )
+                }
+            }
         }
     }
 }
