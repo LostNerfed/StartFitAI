@@ -1,0 +1,402 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Start Fit AI</string>
+    <string name="select_language">Seleccionar Idioma</string>
+    <string name="language_es">Español</string>
+    <string name="language_en">Inglés</string>
+    <string name="language_pt">Português</string>
+    <string name="language_fr">Français</string>
+    <string name="continue_btn">Continuar</string>
+    <string name="auth_step1_title">¿Cuál es tu nombre?</string>
+    <string name="auth_step1_placeholder">Ingresa tu nombre</string>
+    <string name="auth_step1_error">Por favor introduce un nombre válido</string>
+    <string name="auth_step2_title">Sistema de Medidas</string>
+    <string name="auth_step2_desc">Elige cómo prefieres medir tu progreso</string>
+    <string name="auth_metric">KG, CM</string>
+    <string name="auth_imperial">LBS, IN</string>
+    <string name="auth_step3_gender">¿Cuál es tu género?</string>
+    <string name="auth_gender_m">Hombre</string>
+    <string name="auth_gender_f">Mujer</string>
+    <string name="auth_step3_age">¿Cuántos años tienes?</string>
+    <string name="auth_age_placeholder">Ingresa tu edad</string>
+    <string name="auth_age_error">Por favor ingresa una edad válida</string>
+    <string name="auth_step4_height">¿Cuál es tu altura?</string>
+    <string name="auth_height_placeholder">Ingresa tu altura</string>
+    <string name="auth_height_error">Por favor ingresa una altura válida</string>
+    <string name="auth_step4_weight">¿Cuál es tu peso?</string>
+    <string name="auth_weight_placeholder">Ingresa tu peso</string>
+    <string name="auth_weight_error">Por favor ingresa un peso válido</string>
+    <string name="auth_step5_title">¿Cuál es tu nivel de actividad?</string>
+    <string name="auth_act_sedentary">Sedentario</string>
+    <string name="auth_act_light">Ligero</string>
+    <string name="auth_act_moderate">Moderado</string>
+    <string name="auth_act_active">Activo</string>
+    <string name="auth_act_very_active">Muy Activo</string>
+    <string name="auth_step6_title">¿Cuál es tu objetivo principal?</string>
+    <string name="auth_goal_maintain">Mantener peso</string>
+    <string name="auth_goal_lose">Pérdida de Grasa</string>
+    <string name="auth_goal_gain">Hipertrofia</string>
+    <string name="auth_step7_title">Meta de Calorías Diarias (opcional)</string>
+    <string name="auth_step7_desc">Las calcularemos por ti si lo dejas vacío</string>
+    <string name="auth_cals_placeholder">Ej. 2000</string>
+    <string name="auth_cals_error">Por favor introduce un valor válido</string>
+    <string name="auth_finish_btn">Finalizar Registro</string>
+    <string name="home_cals">Calorías</string>
+    <string name="home_days">DÍAS</string>
+    <string name="home_total">TOTAL</string>
+    <string name="home_month">mes</string>
+    <string name="home_gen_progress">Progreso General</string>
+    <string name="home_see_all">Ver todo</string>
+    <string name="home_weight">Peso</string>
+    <string name="home_no_logs">Sin registros</string>
+    <string name="home_workouts">Entrenamientos</string>
+    <string name="home_hours">horas</string>
+    <string name="home_volume">volumen</string>
+    <string name="home_latest_routines">Últimas Rutinas</string>
+    <string name="home_start_routine">Iniciar Rutina</string>
+    <string name="home_no_active_routines">No hay rutinas activas</string>
+    <string name="home_create_routine_prompt">Crea una rutina personalizada para empezar a entrenar.</string>
+    <string name="home_quick_nutrition">Nutrición Rápida</string>
+    <string name="home_carbs">Carbos</string>
+    <string name="home_fats">Grasas</string>
+    <string name="home_proteins">Proteínas</string>
+    <string name="tab_progress">Progreso</string>
+    <string name="tab_nutrition">Nutrición</string>
+    <string name="tab_home">Inicio</string>
+    <string name="tab_plan">Plan</string>
+    <string name="settings_title">Ajustes de Perfil</string>
+    <string name="settings_profile">Tu Perfil</string>
+    <string name="settings_measurements">Tus Medidas</string>
+    <string name="settings_save">Guardar Cambios</string>
+    <string name="btn_cancel">Cancelar</string>
+    <string name="btn_delete">Eliminar</string>
+    <string name="btn_next">Siguiente</string>
+    <string name="btn_start">Comenzar</string>
+    <string name="btn_finish">Finalizar</string>
+    <string name="plan_add_exercise">Añadir Ejercicio</string>
+    <string name="plan_ex_name">Nombre del Ejercicio</string>
+    <string name="plan_target_sets">Series objetivo</string>
+    <string name="plan_routine_name">Nombre de la rutina</string>
+    <string name="plan_routine_desc">Descripción (opcional)</string>
+    <string name="plan_delete_confirm">¿Estás seguro de que quieres eliminar esta rutina?</string>
+    <string name="plan_delete_routine">Eliminar rutina</string>
+    <string name="settings_api_placeholder">Introduce tu clave api...</string>
+    <string name="chat_placeholder">Pregunta algo al Coach...</string>
+    <string name="prog_history">Historial de Entrenamientos</string>
+    <string name="prog_weight_trend">Tendencia de Peso</string>
+    <string name="prog_total_volume">Volumen Total</string>
+    <string name="prog_add_manual">Añadir Registro Manual</string>
+    <string name="prog_manual">Manual</string>
+    <string name="prog_date">Fecha</string>
+    <string name="meal_placeholder">Desayuné tazón de avena con 100g de fresas, un plátano entero y scoop de proteína en polvo</string>
+
+    
+    <string name="plan_error_read_file">Error al leer archivo</string>
+    <string name="plan_export_success">Rutinas exportadas exitosamente</string>
+    <string name="plan_error_save_file">Error al guardar archivo</string>
+    <string name="plan_my_routines">Mis Rutinas</string>
+    <string name="plan_exercise_list">Lista de Ejercicios</string>
+    <string name="plan_your_routines">Tus Rutinas</string>
+    <string name="plan_templates_subtitle">Plantillas de entrenamiento programadas</string>
+    <string name="plan_import_routines">Importar Rutinas</string>
+    <string name="plan_export_routines">Exportar Rutinas</string>
+    <string name="plan_no_routines">No tienes rutinas programadas.
+Crea tu primera plantilla del día aquí arriba.</string>
+    <string name="plan_exercises_title">Ejercicios</string>
+    <string name="plan_exercises_subtitle">Tus ejercicios guardados para usar</string>
+    <string name="plan_new_exercise">Nuevo Ejercicio</string>
+    <string name="plan_upper_body_section">PARTE SUPERIOR (Torso / Brazos)</string>
+    <string name="plan_lower_body_section">PARTE INFERIOR (Pierna / Abdomen)</string>
+    <string name="plan_no_exercises_category">Sin ejercicios guardados en esta categoría.</string>
+    <string name="plan_category_label">Categoría: %1$s</string>
+    <string name="plan_add_exercise_desc">Añade un ejercicio a tu lista general.</string>
+    <string name="plan_muscle_group">Grupo muscular:</string>
+    <string name="plan_upper_body">Parte Superior</string>
+    <string name="plan_lower_body">Parte Inferior</string>
+    <string name="btn_save">Guardar</string>
+    <string name="plan_edit_sets_exercises">Editar Serie y Ejercicios</string>
+    <string name="plan_start_active_session">Iniciar Sesión Activa</string>
+    <string name="plan_target_sets_count">Series Objetivo: %1$d</string>
+    <string name="plan_plus_one_set">+1 Serie</string>
+    <string name="plan_no_exercises_in_category">Sin ejercicios en esta categoría. Añádelos desde \"Lista de Ejercicios\".</string>
+    <string name="btn_add">Añadir</string>
+    <string name="btn_apply">Aplicar</string>
+    <string name="plan_new_routine">Nueva Rutina</string>
+    <string name="plan_select_exercises">Selecciona ejercicios iniciales:</string>
+    <string name="plan_no_exercises">Sin ejercicios. Añádelos primero desde la pestaña \"Lista de Ejercicios\".</string>
+    <string name="plan_selected_count">%1$d ejercicio(s) seleccionado(s)</string>
+    <string name="plan_create_routine">Crear Rutina</string>
+    <string name="plan_start_workout">Iniciar Entrenamiento</string>
+    <string name="plan_target_sets_value">%1$d series</string>
+
+    
+    <string name="prog_analytics">Progreso &amp; Analíticas</string>
+    <string name="prog_days_this_year">%1$d días este año</string>
+    <string name="prog_completion">%1$d%% completado</string>
+    <string name="prog_exercises_records">Ejercicios y Récords Personales</string>
+    <string name="prog_complete_workouts">Completa entrenamientos para ver tus registros.</string>
+    <string name="prog_record">RÉCORD</string>
+    <string name="prog_record_value">%1$s %2$s x %3$d</string>
+    <string name="prog_latest_workouts">Últimos Entrenamientos</string>
+    <string name="prog_best">Mejor: %1$s %2$s x %3$d</string>
+    <string name="prog_view_less">Ver menos</string>
+    <string name="prog_view_more">Ver más ejercicios</string>
+
+    
+    <string name="settings_app_title">Ajustes de Start Fit AI</string>
+    <string name="settings_back">Atrás</string>
+    <string name="settings_ai_section">SECCIÓN INTELIGENCIA ARTIFICIAL</string>
+    <string name="settings_configure_coach">Configurar Coach IA</string>
+    <string name="settings_coach_sub">Proveedor: %1$s  |  Objetivo: %2$s</string>
+    <string name="settings_backup_section">DATOS Y COPIAS DE SEGURIDAD (BACKUP)</string>
+    <string name="settings_export_json">Exportar Base de Datos a JSON</string>
+    <string name="settings_export_json_sub">Genera un archivo JSON legible con tus datos locales.</string>
+    <string name="settings_import_json">Importar JSON local</string>
+    <string name="settings_import_json_sub">Carga datos históricos desde una copia local previa.</string>
+    <string name="settings_backup_result">Resultado de Backup</string>
+    <string name="settings_close">Cerrar</string>
+    <string name="settings_local_backups">COPIAS DE SEGURIDAD LOCALES</string>
+    <string name="settings_generate_backup">Generar Copia de Seguridad Local</string>
+    <string name="settings_generate_backup_sub">Guarda una copia de seguridad en el almacenamiento local seguro de tu dispositivo.</string>
+    <string name="settings_no_backups">No hay copias guardadas. Se genera una copia automática cada primero de mes, o puedes generar una manual aquí arriba.</string>
+    <string name="settings_tap_restore">Toca para restaurar esta copia</string>
+    <string name="settings_restore">Restaurar</string>
+    <string name="settings_danger_zone">ZONA DE PELIGRO</string>
+    <string name="settings_delete_all_data">Borrar todos los datos</string>
+    <string name="settings_delete_all_data_sub">Limpia la base de datos de SQLite de forma permanente.</string>
+    <string name="settings_logout">Cerrar sesión</string>
+    <string name="settings_logout_sub">Cierra la sesión y vacía tu perfil del dispositivo.</string>
+    <string name="settings_delete_confirm_title">¿Borrar permanentemente todos tus datos?</string>
+    <string name="settings_delete_confirm_body">Esta acción es irreversible y eliminará todo tu historial de calorías, pesos, entrenamientos y racha actual de días activos.</string>
+    <string name="settings_delete_all">Borrar Todo</string>
+
+    
+    <string name="cal_training_history">Historial de Entrenamiento</string>
+    <string name="cal_prev_month">Mes anterior</string>
+    <string name="cal_next_month">Mes siguiente</string>
+    <string name="cal_sessions_of">Sesiones de: %1$s</string>
+    <string name="cal_no_workouts">No hay entrenamientos registrados para este día.</string>
+    <string name="cal_active_workout">Entrenamiento activo</string>
+    <string name="cal_duration_min">%1$d min</string>
+    <string name="cal_dropset">Dropset</string>
+    <string name="cal_set_index">Serie %1$d</string>
+    <string name="cal_weight_reps">%1$s %2$s  ×  %3$d reps</string>
+    <string-array name="cal_day_initials">
+        <item>Dom</item>
+        <item>Lun</item>
+        <item>Mar</item>
+        <item>Mié</item>
+        <item>Jue</item>
+        <item>Vie</item>
+        <item>Sáb</item>
+    </string-array>
+
+    
+    <string name="aw_loading">Cargando sesión activa…</string>
+    <string name="aw_live">En Vivo: %1$s</string>
+    <string name="aw_log_date">Fecha de Registro</string>
+    <string name="aw_date_today">Hoy</string>
+    <string name="aw_date_yesterday">Ayer</string>
+    <string name="aw_date_2days">Hace 2 días</string>
+    <string name="aw_pr_record">🏆 PR: %1$s %2$s x %3$d (S%4$d)</string>
+    <string name="aw_set_header">SERIE</string>
+    <string name="aw_reps_header">REPS</string>
+    <string name="aw_dropset">DS S%1$d</string>
+    <string name="aw_set_num">S%1$d</string>
+    <string name="aw_add_dropset">Añadir Dropset</string>
+    <string name="aw_add_alt_exercise">Añadir Ejercicio Alternativo</string>
+    <string name="aw_finish_workout">Finalizar Entrenamiento</string>
+    <string name="aw_cancel_title">¿Cancelar Entrenamiento?</string>
+    <string name="aw_cancel_body">Se perderán todos los datos ingresados en esta sesión en vivo. ¿Deseas descartar?</string>
+    <string name="aw_discard">Descartar</string>
+    <string name="aw_go_back">Volver</string>
+    <string name="aw_incomplete_sets_title">Series Incompletas</string>
+    <string name="aw_incomplete_sets_body">Tienes series en 0 o incompletas de tu entrenamiento actual. Estas no se registrarán en tu historial. ¿Quieres guardar de todas formas?</string>
+    <string name="aw_save">Guardar</string>
+    <string name="aw_correct">Corregir</string>
+    <string name="aw_new_exercise">Nuevo Ejercicio</string>
+    <string name="aw_select_from_list">Selecciona de tu lista o escribe uno de manera manual:</string>
+    <string name="aw_upper_body">Parte Superior</string>
+    <string name="aw_lower_body">Parte Inferior</string>
+    <string name="aw_saved_exercises">Ejercicios guardados para rápido acceso:</string>
+    <string name="aw_empty_list">(Lista vacía en esta categoría)</string>
+    <string name="aw_add">Añadir</string>
+    <string name="aw_apply">Aplicar</string>
+
+    
+    <string name="nut_diary">Diario Nutricional</string>
+    <string name="nut_consumed_today">Consumido hoy</string>
+    <string name="nut_daily_goal">Objetivo diario</string>
+    <string name="nut_maintenance">Mantenimiento: %1$d kcal</string>
+    <string name="nut_weekly_consumption">Consumo semanal</string>
+    <string name="nut_log_food">Registrar alimento</string>
+    <string name="nut_meals_today">Comidas del día</string>
+    <string name="nut_records_count">%1$d registros</string>
+    <string name="nut_of_target">de %1$s</string>
+    <string name="nut_log_food_title">Registrar Alimento</string>
+    <string name="nut_example_placeholder">Ej: tazón de avena con 100g de fresas y scoop de proteína…</string>
+    <string name="nut_analyze_ai">Analizar con IA</string>
+    <string name="nut_meals_of_day">Comidas del día</string>
+    <string name="nut_no_meals_today">Sin comidas registradas hoy.</string>
+    <string name="nut_macro_summary">%1$d kcal  ·  P: %2$dg  ·  C: %3$dg  ·  G: %4$dg</string>
+
+    
+    <string name="meal_natural_language">Registrar mediante Lenguaje Natural</string>
+    <string name="meal_describe_food">Describe lo que comiste exactamente. Nuestro Coach de IA calculará las calorías, carbohidratos, proteínas y grasas.</string>
+    <string name="meal_analyze_ai">Analizar con IA de Start Fit AI</string>
+    <string name="meal_logged_foods">Alimentos Registrados</string>
+    <string name="meal_no_records">No hay registros hoy para esta categoría.</string>
+    <string name="meal_total_macro">Total: %1$d kcal  |  P: %2$dg  |  C: %3$dg  |  G: %4$dg</string>
+    <string name="meal_food_detail">%1$d kcal  (P: %2$dg  C: %3$dg)</string>
+
+    
+    <string name="home_physical_profile">Perfil Físico</string>
+    <string name="home_personalize_ai">Personalizar IA</string>
+    <string name="home_general_settings">Ajustes Generales</string>
+    <string name="home_save_weight">Guardar peso</string>
+    <string name="home_edit_weight">Editar peso</string>
+
+    
+    <string name="day_mon">L</string>
+    <string name="day_tue">M</string>
+    <string name="day_wed">M</string>
+    <string name="day_thu">J</string>
+    <string name="day_fri">V</string>
+    <string name="day_sat">S</string>
+    <string name="day_sun">D</string>
+
+    
+    <string name="home_total_count">%d TOTAL</string>
+    <string name="home_monthly_workouts">%d / mes</string>
+    <string name="home_volume_label">VOLUMEN</string>
+    <string name="home_body">Corporal</string>
+    <string name="home_start">Iniciar</string>
+    <string name="home_routine">Rutina</string>
+    <string name="home_ask_ai">Pregúntale a la IA</string>
+
+    
+    <string name="home_personalize_coach">Personalizar Coach de IA</string>
+    <string name="home_personalize_coach_desc">Configura la inteligencia artificial de Start Fit AI para adecuar los consejos a tus objetivos.</string>
+    <string name="home_ai_provider">Proveedor de IA</string>
+    <string name="home_api_key_label">Clave API (API Key)</string>
+
+    
+    <string name="home_hello_user">Hola, %1$s</string>
+    <string name="home_profile_desc">Usamos esta información para calcular tus calorías de mantenimiento reales.</string>
+    <string name="home_gender">Género</string>
+    <string name="home_age">Edad</string>
+    <string name="home_height_cm">Estatura (cm)</string>
+    <string name="home_weight_kglb">Peso (kg/lb)</string>
+    <string name="home_weekly_activity">Nivel de Actividad Semanal</string>
+    <string name="home_daily_cal_manual">Meta Calorías Diarias (Manual)</string>
+    <string name="home_daily_cal_auto">Meta Calorías Diarias (Automático)</string>
+    <string name="home_kcal_per_day">%d kcal / día</string>
+    <string name="home_missing_data">Faltan datos</string>
+    <string name="home_main_fitness_goal">Objetivo Fitness Principal</string>
+
+    
+    <string name="goal_hypertrophy">Hipertrofia / Ganar Músculo</string>
+    <string name="goal_fat_loss">Pérdida de Grasa / Definición</string>
+    <string name="goal_strength">Fuerza y Rendimiento</string>
+    <string name="goal_maintenance">Mantenimiento / Salud General</string>
+
+    
+    <string name="activity_sedentary">Sedentario (0 entrenamientos/sem)</string>
+    <string name="activity_light">Ligero (1-3 entrenamientos/sem)</string>
+    <string name="activity_moderate">Moderado (3-5 entrenamientos/sem)</string>
+    <string name="activity_active">Activo (6-7 entrenamientos/sem)</string>
+    <string name="activity_very_active">Muy Activo (Doble turno o trabajo físico exigente)</string>
+
+    
+    <string name="home_start_workout_session">Iniciar Sesión de Entrenamiento</string>
+    <string name="home_start_workout_desc">Selecciona una plantilla de rutina para cargar tus series y comenzar a registrar.</string>
+    <string name="home_free_session">Sesión Libre / Sin Plantilla</string>
+    <string name="home_free_session_desc">Registrar ejercicio a ejercicio en el momento</string>
+    <string name="home_your_routine_templates">Tus Plantillas de Rutinas</string>
+    <string name="home_no_templates">No tienes plantillas creadas. Ve a la sección de Rutinas para agregar una nueva.</string>
+    <string name="plan_series">series</string>
+    <string name="auth_synergy">SYNERGY</string>
+    <string name="auth_fit">FIT</string>
+    <string name="auth_terms">Términos y Privacidad</string>
+    <string name="auth_privacy_desc">Todos tus datos se almacenan exclusivamente de forma local. No enviamos información a servidores externos.</string>
+    <string name="meal_ai_desc">Describe lo que comiste exactamente. Nuestro Coach de IA calculará las calorías, carbohidratos, proteínas y grasas.</string>
+    <string name="cal_history">Historial de Entrenamiento</string>
+    <string name="settings_title_main">Ajustes de Start Fit AI</string>
+    <string name="nut_log_food_lowercase">Registrar alimento</string>
+    <string name="nut_records">registros</string>
+    <string name="auth_height_cm">Estatura (cm)</string>
+    <string name="auth_weight_kglb">Peso (kg/lb)</string>
+    <string name="auth_activity_level_weekly">Nivel de Actividad Semanal</string>
+    <string name="home_cals_manual">Meta Calorías Diarias (Manual)</string>
+    <string name="home_cals_auto">Meta Calorías Diarias (Automático)</string>
+    <string name="home_cals_missing">Faltan datos</string>
+    <string name="home_fitness_goal">Objetivo Fitness Principal</string>
+    <string name="home_start_session">Iniciar Sesión de Entrenamiento</string>
+    <string name="home_select_template">Selecciona una plantilla de rutina para cargar tus series y comenzar a registrar.</string>
+    <string name="home_log_on_the_fly">Registrar ejercicio a ejercicio en el momento</string>
+    <string name="home_routine_templates">Tus Plantillas de Rutinas</string>
+    <string name="tab_routines">Rutinas</string>
+    <string name="tab_history">Historial</string>
+    <string name="auth_btn_next">Siguiente</string>
+    <string name="auth_btn_continue">Continuar</string>
+    <string name="auth_height_cm_ph">Altura (cm)</string>
+    <string name="auth_height_in_ph">Altura (pulgadas)</string>
+    <string name="auth_weight_kg_ph">Peso (kg)</string>
+    <string name="auth_weight_lbs_ph">Peso (lbs)</string>
+    <string name="auth_err_age">Por favor introduce una edad válida</string>
+    <string name="auth_err_height">Por favor introduce una altura válida</string>
+    <string name="auth_err_weight">Por favor introduce un peso válido</string>
+    <string name="auth_err_cals">Por favor introduce una meta de calorías válida</string>
+    <string name="goal_fatloss">Pérdida de Grasa / Definición</string>
+    <string name="main_training_status">Entrenando: %1$s • %2$s</string>
+    <string name="settings_preferences_section">PREFERENCIAS</string>
+    <string name="settings_language">Idioma de la App</string>
+    <string name="settings_language_sub">Cambiar el idioma de Start Fit AI</string>
+    <string name="nut_breakfast">Desayuno</string>
+    <string name="nut_lunch">Almuerzo</string>
+    <string name="nut_dinner">Cena</string>
+    <string name="nut_snack">Snack</string>
+    <string name="home_streak">RACHA</string>
+    <string name="api_dialog_title">Activa tu Inteligencia Artificial</string>
+    <string name="api_dialog_body">Para que Start Fit AI pueda analizar tus comidas y darte consejos en tiempo real, necesitas enlazarlo con el cerebro de Google Gemini.\n\nObtener tu clave es rápido, 100%% gratuito y seguro.</string>
+    <string name="api_dialog_get_key">Obtener Clave Gratuita</string>
+    <string name="api_dialog_configure">Ya tengo mi clave</string>
+    <string name="chat_thinking">Pensando...</string>
+    <string name="auth_welcome">Bienvenido a Start Fit AI</string>
+    <string name="auth_back">Volver</string>
+    <!-- Strings de autenticación local -->
+    <string name="auth_btn_start">Comenzar</string>
+    <string name="auth_err_name">Por favor, introduce un nombre válido</string>
+    <string name="auth_unit_change_notice">Podrás cambiar entre Kilos/Libras y Centímetros/Pulgadas más tarde en Ajustes.</string>
+    <string name="widget_daily_log">Registro Diario</string>
+    <!-- Sección de cuenta local -->
+    <string name="settings_account_security">DATOS LOCALES</string>
+    <string name="settings_reset_success_title">Listo</string>
+    <string name="settings_reset_error_title">Error</string>
+    <string name="home_consumed_cals">Consumidas</string>
+    <string name="home_burned_cals">Quemadas</string>
+    <string name="prog_volume">Volumen (%1$s)</string>
+    <string name="prog_total_series">Series</string>
+    <string name="prog_muscle_heatmap">Mapa Muscular</string>
+    <!-- Categorías y Músculos -->
+    <string name="cat_header_chest">Pecho</string>
+    <string name="cat_header_back">Espalda</string>
+    <string name="cat_header_legs">Piernas</string>
+    <string name="cat_header_arms">Brazos</string>
+    <string name="cat_header_shoulders">Hombros</string>
+    <string name="cat_header_core">Core</string>
+    <string name="cat_header_general">General</string>
+
+    <string name="cat_pectoral">Pectoral</string>
+    <string name="cat_dorsal">Dorsal</string>
+    <string name="cat_traps_rhomboids">Trapecio y Romboides</string>
+    <string name="cat_lumbar">Lumbar</string>
+    <string name="cat_quads">Cuádriceps</string>
+    <string name="cat_hamstrings">Femorales</string>
+    <string name="cat_glutes">Glúteo</string>
+    <string name="cat_calves">Pantorrilla</string>
+    <string name="cat_biceps">Bíceps</string>
+    <string name="cat_triceps">Tríceps</string>
+    <string name="cat_forearms">Antebrazo</string>
+    <string name="cat_others">Otros</string>
+</resources>

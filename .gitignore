@@ -1,0 +1,51 @@
+# ── Android / Gradle ─────────────────────────────────────────────────
+*.iml
+.gradle
+.kotlin
+/build
+/app/build
+local.properties
+/captures
+.externalNativeBuild
+.cxx
+debug.keystore
+debug.keystore.base64
+*.jks
+my-upload-key.jks
+
+# ── IDE ──────────────────────────────────────────────────────────────
+.idea/
+*.DS_Store
+
+# ── Environment ──────────────────────────────────────────────────────
+.env
+
+# ── Releases (APKs kept locally only) ────────────────────────────────
+releases/
+.build-outputs/
+
+# ── Shell scripts / automation ───────────────────────────────────────
+*.sh
+
+# ── Temp / Patch / Recovery artifacts ────────────────────────────────
+*.orig
+*.rej
+*.patch
+*.py
+*.txt
+databaseimp.md
+plan_pruebas.md
+informe_seguridad*.md
+trazabilidad_funcional.md
+schema.sql
+venv/
+proxy/
+fvm_view_*.txt
+FitnessViewModel_*
+HomeScreen_*
+MuscleAnatomyPaths.kt
+firebase.json
+firestore.rules
+build_firebase_ai.txt
+build_output*.txt
+saf_*.py

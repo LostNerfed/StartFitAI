@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anatomy Heatmap</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            max-height: 90vh;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        }
+
+        /* Base Liquid Glass Look */
+        .muscle path {
+            fill: #2C2C2E;
+            stroke: #3A3A3C;
+            stroke-width: 0.3;
+            transition: fill 0.8s ease-out, filter 0.8s ease-out;
+            cursor: pointer;
+        }
+
+        /* Separation lines */
+        .stroke path {
+            fill: none;
+            stroke: rgba(0,0,0,0.6);
+            stroke-width: 0.8;
+            pointer-events: none;
+        }
+
+        /* Neon Glow Active State */
+        .muscle path.active {
+            /* The fill color is assigned dynamically via JS */
+            filter: drop-shadow(0px 0px 5px currentColor);
+            stroke: rgba(255, 255, 255, 0.4);
+            stroke-width: 0.5;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="15 -5 70 210">
+    <!-- Simplified compatible shadow for Android WebView -->
+    <g class="muscle">
+        <!-- Head & Neck -->
+        <path id="HEAD" d="M 50,2 C 42,2 39,9 39,15 C 39,22 43,26 47,27 L 50,28 L 53,27 C 57,26 61,22 61,15 C 61,9 58,2 50,2 Z"/>
+        <path id="NECK" d="M 46,28 L 54,28 L 55,30 L 45,30 Z"/>
+        
+        <!-- Traps -->
+        <path id="TRAPS_L" d="M 44.5,29.5 L 36,33 C 40,32 43,30 46,26 Z"/>
+        <path id="TRAPS_R" d="M 55.5,29.5 L 64,33 C 60,32 57,30 54,26 Z"/>
+        
+        <!-- Chest -->
+        <path id="CHEST_UPPER_L" d="M 49.5,31 C 45,31 40,32 35,34 C 36,36 41,37 49.5,37 Z"/>
+        <path id="CHEST_LOWER_L" d="M 49.5,37.5 C 41,37.5 35,36.5 33,35 C 33,40 36,46 42,48 C 45,49 48,49 49.5,49 Z"/>
+        <path id="CHEST_UPPER_R" d="M 50.5,31 C 55,31 60,32 65,34 C 64,36 59,37 50.5,37 Z"/>
+        <path id="CHEST_LOWER_R" d="M 50.5,37.5 C 59,37.5 65,36.5 67,35 C 67,40 64,46 58,48 C 55,49 52,49 50.5,49 Z"/>
+        
+        <!-- Shoulders -->
+        <path id="DELT_FRONT_L" d="M 34.5,33 C 32,35 30,40 31,45 C 32,41 33,38 34.5,33 Z"/>
+        <path id="DELT_MID_L" d="M 34,32 C 28,32 23,36 22,41 C 21,46 22.5,50 25.5,52 C 27,53 29.5,49 30.5,45 C 29,41 30,36 34,32 Z"/>
+        <path id="DELT_FRONT_R" d="M 65.5,33 C 68,35 70,40 69,45 C 68,41 67,38 65.5,33 Z"/>
+        <path id="DELT_MID_R" d="M 66,32 C 72,32 77,36 78,41 C 79,46 77.5,50 74.5,52 C 73,53 70.5,49 69.5,45 C 71,41 70,36 66,32 Z"/>
+        
+        <!-- Arms -->
+        <path id="BICEP_L" d="M 31,46 C 29,51 28,57 29.5,63 C 31,64 34,62 34,57 C 34,51 33,48 31,46 Z"/>
+        <path id="BICEP_R" d="M 69,46 C 71,51 72,57 70.5,63 C 69,64 66,62 66,57 C 66,51 67,48 69,46 Z"/>
+        <path id="TRICEP_L" d="M 25,51 C 22,55 22,60 24.5,64.5 C 26,64 27.5,60 28,55 C 28,52 27,51 25,51 Z"/>
+        <path id="TRICEP_R" d="M 75,51 C 78,55 78,60 75.5,64.5 C 74,64 72.5,60 72,55 C 72,52 73,51 75,51 Z"/>
+        <path id="BRACHIO_L" d="M 23.5,65 C 20,72 19,78 21,85 C 23,80 24,72 25,65 Z"/>
+        <path id="BRACHIO_R" d="M 76.5,65 C 80,72 81,78 79,85 C 77,80 76,72 75,65 Z"/>
+        <path id="FLEXOR_L" d="M 26,65 C 25,72 26,80 28,88 L 30,88 C 32,80 33,72 32.5,65 Z"/>
+        <path id="FLEXOR_R" d="M 74,65 C 75,72 74,80 72,88 L 70,88 C 68,80 67,72 67.5,65 Z"/>
+        <path id="EXTENSOR_L" d="M 25.5,65 C 24.5,72 24.5,78 26,86 C 25,78 25,72 25.5,65 Z"/>
+        <path id="EXTENSOR_R" d="M 74.5,65 C 75.5,72 75.5,78 74,86 C 75,78 75,72 74.5,65 Z"/>
+        <path id="HAND_L" d="M 28,89 C 25,93 25,98 27,102 C 29,100 31,95 30,89 Z"/>
+        <path id="HAND_R" d="M 72,89 C 75,93 75,98 73,102 C 71,100 69,95 70,89 Z"/>
+        
+        <!-- Torso & Abs -->
+        <path id="SERRATUS_L" d="M 33,45 C 31,48 31,52 35,53 C 33,50 34,47 33,45 Z"/>
+        <path id="SERRATUS_R" d="M 67,45 C 69,48 69,52 65,53 C 67,50 66,47 67,45 Z"/>
+        <path id="ABS1_L" d="M 49.5,49.5 L 42,49.5 C 42,51 42,53 43,54 L 49.5,54 Z"/>
+        <path id="ABS2_L" d="M 49.5,54.5 L 43.5,54.5 C 43.5,57 44,59 44.5,60 L 49.5,60 Z"/>
+        <path id="ABS3_L" d="M 49.5,60.5 L 45,60.5 C 45,63 46,65 47,66 L 49.5,66 Z"/>
+        <path id="ABS4_L" d="M 49.5,66.5 L 47.5,66.5 C 48,69 49,71 49.5,72 Z"/>
+        <path id="ABS1_R" d="M 50.5,49.5 L 58,49.5 C 58,51 58,53 57,54 L 50.5,54 Z"/>
+        <path id="ABS2_R" d="M 50.5,54.5 L 56.5,54.5 C 56.5,57 56,59 55.5,60 L 50.5,60 Z"/>
+        <path id="ABS3_R" d="M 50.5,60.5 L 55,60.5 C 55,63 54,65 53,66 L 50.5,66 Z"/>
+        <path id="ABS4_R" d="M 50.5,66.5 L 52.5,66.5 C 52,69 51,71 50.5,72 Z"/>
+        <path id="OBLIQUE_L" d="M 41,51 C 36,56 36,68 45,75 C 42,67 43,58 41,51 Z"/>
+        <path id="OBLIQUE_R" d="M 59,51 C 64,56 64,68 55,75 C 58,67 57,58 59,51 Z"/>
+        
+        <!-- Legs -->
+        <path id="ADDUCTOR_L" d="M 48,77 C 49,85 49,95 48,105 C 47,95 46,85 48,77 Z"/>
+        <path id="ADDUCTOR_R" d="M 52,77 C 51,85 51,95 52,105 C 53,95 54,85 52,77 Z"/>
+        <path id="QUAD_LAT_L" d="M 40,78 C 30,90 28,110 33,128 C 36,115 37,100 40,78 Z"/>
+        <path id="QUAD_RECT_L" d="M 42,76 C 38,90 38,110 41,126 C 43,110 44,90 42,76 Z"/>
+        <path id="QUAD_MED_L" d="M 46,95 C 43,105 43,115 45,129 C 47,120 48,105 46,95 Z"/>
+        <path id="PATELLA_L" d="M 41,130 C 38,132 38,136 41,138 C 44,136 44,132 41,130 Z"/>
+        <path id="QUAD_LAT_R" d="M 60,78 C 70,90 72,110 67,128 C 64,115 63,100 60,78 Z"/>
+        <path id="QUAD_RECT_R" d="M 58,76 C 62,90 62,110 59,126 C 57,110 56,90 58,76 Z"/>
+        <path id="QUAD_MED_R" d="M 54,95 C 57,105 57,115 55,129 C 53,120 52,105 54,95 Z"/>
+        <path id="PATELLA_R" d="M 59,130 C 56,132 56,136 59,138 C 62,136 62,132 59,130 Z"/>
+        <path id="CALF_MED_L" d="M 44,140 C 46,146 45,155 42,165 C 41,155 41,146 44,140 Z"/>
+        <path id="CALF_LAT_L" d="M 38,140 C 33,148 34,160 37,165 C 38,155 39,145 38,140 Z"/>
+        <path id="SOLEUS_L" d="M 38,166 C 36,172 38,178 39,182 C 41,178 41,172 41,166 Z"/>
+        <path id="CALF_MED_R" d="M 56,140 C 54,146 55,155 58,165 C 59,155 59,146 56,140 Z"/>
+        <path id="CALF_LAT_R" d="M 62,140 C 67,148 66,160 63,165 C 62,155 61,145 62,140 Z"/>
+        <path id="SOLEUS_R" d="M 62,166 C 64,172 62,178 61,182 C 59,178 59,172 59,166 Z"/>
+        <path id="FOOT_L" d="M 38,183 C 35,188 36,192 40,192 C 43,192 42,188 41,183 Z"/>
+        <path id="FOOT_R" d="M 62,183 C 65,188 64,192 60,192 C 57,192 58,188 59,183 Z"/>
+    </g>
+
+    <g class="stroke">
+        <!-- Definition lines for realistic cuts -->
+        <path d="M 49,30 C 45,30 40,29 36,28"/>
+        <path d="M 51,30 C 55,30 60,29 64,28"/>
+        <path d="M 49,38 C 45,39 40,39 36,41"/>
+        <path d="M 49,42 C 45,43 40,43 36,44"/>
+        <path d="M 51,38 C 55,39 60,39 64,41"/>
+        <path d="M 51,42 C 55,43 60,43 64,44"/>
+        <path d="M 50,30 L 50,76"/>
+        <path d="M 42,55.5 C 47,56 53,56 58,55.5"/>
+        <path d="M 43,64.5 C 47,65 53,65 57,64.5"/>
+        <path d="M 40,90 C 37,110 37,120 38.5,132"/>
+        <path d="M 44,90 C 43,110 43,120 42.5,132"/>
+        <path d="M 60,90 C 63,110 63,120 61.5,132"/>
+        <path d="M 56,90 C 57,110 57,120 57.5,132"/>
+        <path d="M 36.5,136 L 36.5,170"/>
+        <path d="M 63.5,136 L 63.5,170"/>
+    </g>
+</svg>
+
+<script>
+    // Map abstract muscle groups to our SVG IDs
+    const muscleMap = {
+        "chest": ["CHEST_UPPER_L", "CHEST_LOWER_L", "CHEST_UPPER_R", "CHEST_LOWER_R"],
+        "back": ["TRAPS_L", "TRAPS_R", "SERRATUS_L", "SERRATUS_R"], // Front view visible back muscles
+        "shoulder": ["DELT_FRONT_L", "DELT_MID_L", "DELT_FRONT_R", "DELT_MID_R"],
+        "arm": ["BICEP_L", "TRICEP_L", "BRACHIO_L", "FLEXOR_L", "EXTENSOR_L", 
+                "BICEP_R", "TRICEP_R", "BRACHIO_R", "FLEXOR_R", "EXTENSOR_R"],
+        "abs": ["ABS1_L", "ABS2_L", "ABS3_L", "ABS4_L", "OBLIQUE_L",
+                "ABS1_R", "ABS2_R", "ABS3_R", "ABS4_R", "OBLIQUE_R"],
+        "leg": ["QUAD_LAT_L", "QUAD_RECT_L", "QUAD_MED_L", "ADDUCTOR_L",
+                "QUAD_LAT_R", "QUAD_RECT_R", "QUAD_MED_R", "ADDUCTOR_R",
+                "CALF_MED_L", "CALF_LAT_L", "SOLEUS_L",
+                "CALF_MED_R", "CALF_LAT_R", "SOLEUS_R"]
+    };
+
+    // Called from Android Viewmodel via Javascript Bridge
+    function updateMuscleColors(jsonColors) {
+        try {
+            const colors = JSON.parse(jsonColors);
+            
+            // 1. Reset all paths to base glass state
+            document.querySelectorAll('.muscle path').forEach(path => {
+                path.style.fill = '#2C2C2E';
+                path.style.color = 'transparent'; // Reset glow color
+                path.classList.remove('active');
+            });
+
+            // 2. Apply intensity-based colors to specific muscle groups
+            for (const [group, rgbaStr] of Object.entries(colors)) {
+                if (muscleMap[group]) {
+                    // Extract hex color or rgba
+                    const colorValue = rgbaStr; 
+                    
+                    muscleMap[group].forEach(id => {
+                        const path = document.getElementById(id);
+                        if (path) {
+                            path.style.fill = colorValue;
+                            path.style.color = colorValue; // Used by drop-shadow (currentColor)
+                            path.classList.add('active'); // Triggers the neon glow via CSS
+                        }
+                    });
+                }
+            }
+        } catch(e) {
+            console.error("Error applying colors:", e);
+        }
+    }
+
+    // Interactive testing - remove in prod if not needed
+    document.querySelectorAll('.muscle path').forEach(path => {
+        path.addEventListener('click', () => {
+            if(!path.classList.contains('active')) {
+                path.style.fill = '#FF5252';
+                path.style.color = '#FF5252';
+                path.classList.add('active');
+            } else {
+                path.style.fill = '#2C2C2E';
+                path.classList.remove('active');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
