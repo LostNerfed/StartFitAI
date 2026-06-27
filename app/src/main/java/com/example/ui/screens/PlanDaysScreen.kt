@@ -583,7 +583,7 @@ fun PlanDaysScreen(
                     shape = RoundedCornerShape(20.dp),
                     title = { Text(text = stringResource(R.string.plan_add_exercise), fontWeight = FontWeight.Bold, color = Color.White) },
                     text = {
-                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             // Category filter chips
                             Text(text = "Músculo Principal *", fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
                             ExposedDropdownMenuBox(
@@ -642,9 +642,8 @@ fun PlanDaysScreen(
                                     }
                                 }
                             }
-                        }
 
-                        // Vertical exercise list grouped by category
+                            // Vertical exercise list grouped by category
                             if (allExercises.isEmpty()) {
                                 Text(
                                     text = stringResource(R.string.plan_no_exercises_in_category),
@@ -662,7 +661,7 @@ fun PlanDaysScreen(
                                     Column(
                                         modifier = Modifier
                                             .verticalScroll(listScroll)
-                                            .padding(bottom = 8.dp)
+                                            .padding(start = 14.dp, end = 14.dp, top = 8.dp, bottom = 8.dp)
                                     ) {
                                         val exerciseCategories = groupedExercises.entries.toList()
                                         exerciseCategories.forEachIndexed { catIdx, (category, exercises) ->
@@ -671,9 +670,9 @@ fun PlanDaysScreen(
                                                 fontSize = 11.sp,
                                                 color = TextSecundario,
                                                 fontWeight = FontWeight.Bold,
-                                                modifier = Modifier.padding(start = 14.dp, top = 12.dp, bottom = 4.dp)
+                                                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
                                             )
-                                            HorizontalDivider(modifier = Modifier.padding(start = 14.dp, end = 14.dp, bottom = 4.dp), color = Color.White.copy(alpha = 0.2f))
+                                            HorizontalDivider(modifier = Modifier.padding(bottom = 4.dp), color = Color.White.copy(alpha = 0.2f))
                                             
                                             exercises.sortedBy { it.name }.forEachIndexed { index, exObj ->
                                                 val isSelected = tempExerciseName == exObj.name
@@ -755,6 +754,7 @@ fun PlanDaysScreen(
                                     focusedContainerColor = Color(0x05FFFFFF),
                                     unfocusedContainerColor = Color(0x05FFFFFF))
                             )
+                        }
                     },
                     confirmButton = {
                         val context = LocalContext.current
