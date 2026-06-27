@@ -202,8 +202,8 @@
     <string name="plan_lower_body">Bas du Corps</string>
     <string name="plan_create_routine">Créer la Routine</string>
     <string name="plan_series">séries</string>
-    <string name="auth_synergy">SYNERGY</string>
-    <string name="auth_fit">FIT</string>
+    <string name="auth_synergy">Start</string>
+    <string name="auth_fit">Fit AI</string>
     <string name="auth_terms">Termes et Confidentialité</string>
     <string name="auth_privacy_desc">Toutes vos données sont stockées exclusivement localement. Nous n\'envoyons aucune information à des serveurs externes.</string>
     <string name="meal_ai_desc">Décrivez exactement ce que vous avez mangé. Notre Coach IA calculera les calories, glucides, protéines et lipides.</string>

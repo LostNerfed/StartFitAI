@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import com.example.ui.theme.*
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,6 +32,7 @@ import androidx.activity.compose.BackHandler
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Translate
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -177,11 +179,10 @@ fun AuthScreen(
                     when (currentStep) {
                         0 -> {
                             // Step 0: Selección de idioma
-                            Icon(
-                                imageVector = Icons.Default.Translate,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(64.dp).padding(bottom = 16.dp)
+                            Image(
+                                painter = painterResource(id = R.drawable.start_fit_3),
+                                contentDescription = "StartFit AI Logo",
+                                modifier = Modifier.size(120.dp).padding(bottom = 24.dp)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -222,6 +223,19 @@ fun AuthScreen(
                             }
 
                             Spacer(modifier = Modifier.height(32.dp))
+
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(0.6f)
+                                        .height(0.5.dp)
+                                        .background(Color.White.copy(alpha = 0.15f))
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
 
                             Button(
                                 onClick = { step = 1 },
@@ -318,7 +332,7 @@ fun AuthScreen(
                                     ),
                                     shape = RoundedCornerShape(12.dp)
                                 ) {
-                                    Text("Continuar sin cuenta (Offline)", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                    Text("Usuario anónimo", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                                 }
                             }
                         }

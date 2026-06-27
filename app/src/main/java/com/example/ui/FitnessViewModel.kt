@@ -529,7 +529,7 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
                 val totalProtein = meals.sumOf { it.totalProtein }
 
                 val prompt = """
-                    Actúa como un Nutricionista deportivo de SynergyFit.
+                    Actúa como un Nutricionista deportivo de StartFit AI.
                     El usuario tiene el siguiente objetivo fit: "${config.fitnessGoal}".
                     Hoy ha consumido: $totalCalories / ${config.targetCalories} kcal y $totalProtein / ${config.targetProtein}g de proteínas.
                     Su peso corporal es ${config.bodyWeight} kg.
@@ -591,7 +591,7 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
                 }
 
                 val prompt = """
-                    Eres el Coach Deportivo de SynergyFit. ERES EXTREMADAMENTE CONCISO Y DIRECTO. No uses texto de relleno ni preámbulos gigantes.
+                    Eres el Coach Deportivo de StartFit AI. ERES EXTREMADAMENTE CONCISO Y DIRECTO. No uses texto de relleno ni preámbulos gigantes.
                     Objetivo principal del usuario: ${config.fitnessGoal}
                     Peso corporal: ${config.bodyWeight} kg
                     
@@ -1070,7 +1070,7 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     private object BackupCrypto {
-        private const val KEY_ALIAS = "synergyfit_backup_key"
+        private const val KEY_ALIAS = "startfit_backup_key"
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
         private const val GCM_TAG_LENGTH = 128
@@ -1171,9 +1171,9 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // removed
-                val dbFile = app.getDatabasePath("synergyfit_database")
-                val dbShmFile = java.io.File(dbFile.parent, "synergyfit_database-shm")
-                val dbWalFile = java.io.File(dbFile.parent, "synergyfit_database-wal")
+                val dbFile = app.getDatabasePath("startfit_database")
+                val dbShmFile = java.io.File(dbFile.parent, "startfit_database-shm")
+                val dbWalFile = java.io.File(dbFile.parent, "startfit_database-wal")
                 
                 java.util.zip.ZipOutputStream(outputStream).use { zos ->
                     val filesToZip = listOf(dbFile, dbShmFile, dbWalFile)
@@ -1203,7 +1203,7 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 // removed
-                val dbFile = app.getDatabasePath("synergyfit_database")
+                val dbFile = app.getDatabasePath("startfit_database")
                 val parentDir = dbFile.parentFile ?: app.getDatabasePath("")
                 
                 java.util.zip.ZipInputStream(inputStream).use { zis ->
@@ -1211,7 +1211,7 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
                     while (entry != null) {
                         // Avoid path traversal and extract only valid files
                         val fileName = entry.name
-                        if (fileName == "synergyfit_database" || fileName == "synergyfit_database-shm" || fileName == "synergyfit_database-wal") {
+                        if (fileName == "startfit_database" || fileName == "startfit_database-shm" || fileName == "startfit_database-wal") {
                             val outFile = java.io.File(parentDir, fileName)
                             java.io.FileOutputStream(outFile).use { fos ->
                                 zis.copyTo(fos)

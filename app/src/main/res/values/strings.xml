@@ -315,8 +315,8 @@ Crea tu primera plantilla del día aquí arriba.</string>
     <string name="home_your_routine_templates">Tus Plantillas de Rutinas</string>
     <string name="home_no_templates">No tienes plantillas creadas. Ve a la sección de Rutinas para agregar una nueva.</string>
     <string name="plan_series">series</string>
-    <string name="auth_synergy">SYNERGY</string>
-    <string name="auth_fit">FIT</string>
+    <string name="auth_synergy">Start</string>
+    <string name="auth_fit">Fit AI</string>
     <string name="auth_terms">Términos y Privacidad</string>
     <string name="auth_privacy_desc">Todos tus datos se almacenan exclusivamente de forma local. No enviamos información a servidores externos.</string>
     <string name="meal_ai_desc">Describe lo que comiste exactamente. Nuestro Coach de IA calculará las calorías, carbohidratos, proteínas y grasas.</string>

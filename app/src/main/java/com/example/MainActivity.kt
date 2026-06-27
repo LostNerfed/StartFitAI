@@ -344,7 +344,7 @@ class MainActivity : AppCompatActivity() {
         val action = intent.action
         val data: Uri? = intent.data
         if (Intent.ACTION_VIEW == action && data != null) {
-            if ("synergyfit" == data.scheme) {
+            if ("startfit" == data.scheme) {
                 when (data.host) {
                     "add-meal" -> {
                         val cat = data.getQueryParameter("category")?.take(50) ?: "Desayuno"

@@ -1,6 +1,6 @@
-# SynergyFit
+# StartFit AI
 
-SynergyFit es una aplicación minimalista y avanzada de fitness y nutrición optimizada para pantallas AMOLED. 
+StartFit AI es una aplicación minimalista y avanzada de fitness y nutrición optimizada para pantallas AMOLED. 
 Su diseño "Liquid Glass" y su interfaz de usuario intuitiva la convierten en la herramienta perfecta para el seguimiento de rutinas de entrenamiento, progresos de levantamiento de peso, y registro nutricional detallado.
 
 ## Características Principales
@@ -21,4 +21,4 @@ Su diseño "Liquid Glass" y su interfaz de usuario intuitiva la convierten en la
 4. Ejecuta la aplicación en un emulador o dispositivo físico.
 
 ---
-© SynergyFit - Todos los derechos reservados.
+© StartFit AI - Todos los derechos reservados.

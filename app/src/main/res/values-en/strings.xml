@@ -268,8 +268,8 @@
     <string name="plan_lower_body">Lower Body</string>
     <string name="plan_create_routine">Create Routine</string>
     <string name="plan_series">sets</string>
-    <string name="auth_synergy">SYNERGY</string>
-    <string name="auth_fit">FIT</string>
+    <string name="auth_synergy">Start</string>
+    <string name="auth_fit">Fit AI</string>
     <string name="auth_terms">Terms and Privacy</string>
     <string name="auth_privacy_desc">All your data is stored exclusively locally. We do not send information to external servers.</string>
     <string name="meal_ai_desc">Describe exactly what you ate. Our AI Coach will calculate calories, carbs, protein, and fat.</string>

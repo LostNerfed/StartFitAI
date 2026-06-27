@@ -27,10 +27,10 @@ class MealWidget : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.widget_meal_layout)
 
         // Set pending intents for quick actions
-        views.setOnClickPendingIntent(R.id.btn_nutrition, getPendingIntentForUrl(context, "synergyfit://add-meal-general", 101))
-        views.setOnClickPendingIntent(R.id.btn_train, getPendingIntentForUrl(context, "synergyfit://tab-plan", 102))
-        views.setOnClickPendingIntent(R.id.btn_progress, getPendingIntentForUrl(context, "synergyfit://tab-progress", 103))
-        views.setOnClickPendingIntent(R.id.btn_coach, getPendingIntentForUrl(context, "synergyfit://ask-ai", 104))
+        views.setOnClickPendingIntent(R.id.btn_nutrition, getPendingIntentForUrl(context, "startfit://add-meal-general", 101))
+        views.setOnClickPendingIntent(R.id.btn_train, getPendingIntentForUrl(context, "startfit://tab-plan", 102))
+        views.setOnClickPendingIntent(R.id.btn_progress, getPendingIntentForUrl(context, "startfit://tab-progress", 103))
+        views.setOnClickPendingIntent(R.id.btn_coach, getPendingIntentForUrl(context, "startfit://ask-ai", 104))
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }

@@ -46,7 +46,7 @@ android {
   signingConfigs {
     create("release") {
       val userHome = System.getProperty("user.home")
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${userHome}/.keystores/synergyfit.jks"
+      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${userHome}/.keystores/startfit.jks"
       storeFile = file(keystorePath)
       storePassword = System.getenv("STORE_PASSWORD")
       keyAlias = "my-key-alias"
@@ -170,7 +170,7 @@ tasks.register<Copy>("renameApk") {
     outputs.upToDateWhen { false }
     from("build/outputs/apk/debug/app-debug.apk")
     into("../releases")
-    rename { "SynergyFit-v1.1.0.apk" }
+    rename { "StartFitAI-v1.5.0.apk" }
 }
 
 tasks.configureEach {
