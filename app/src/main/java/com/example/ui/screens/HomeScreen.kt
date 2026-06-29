@@ -1,5 +1,16 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
@@ -62,6 +73,7 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onStartActiveWorkout: (Routine) -> Unit,
     onStartCustomWorkout: () -> Unit,
+    onNavigateToNutrition: () -> Unit,
     onOpenProfile: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
@@ -83,16 +95,95 @@ fun HomeScreen(
     var showProfileSheet by remember { mutableStateOf(false) }
     var showStartWorkoutSheet by remember { mutableStateOf(false) }
     var showWeightHistorySheet by remember { mutableStateOf(false) }
+    var isFabExpanded by remember { mutableStateOf(false) }
 
     // Calculate metrics
     val consumedCalories = selectedDateMeals.sumOf { it.totalCalories }
     val targetCalories = settings.targetCalories
+
+    val today = java.time.LocalDate.now()
+    val logsByDate = sessions.groupBy { 
+        java.time.Instant.ofEpochMilli(it.dateMillis).atZone(java.time.ZoneId.systemDefault()).toLocalDate() 
+    }
+    
+    var currentStreak = 0
+    val activeDates = logsByDate.keys.sortedDescending()
+    if (activeDates.isNotEmpty()) {
+        val mostRecent = activeDates.first()
+        if (java.time.temporal.ChronoUnit.DAYS.between(mostRecent, today) <= 7) {
+            currentStreak = 1
+            for (i in 0 until activeDates.size - 1) {
+                val current = activeDates[i]
+                val previous = activeDates[i + 1]
+                if (java.time.temporal.ChronoUnit.DAYS.between(previous, current) <= 7) {
+                    currentStreak++
+                } else {
+                    break
+                }
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Transparent),
         containerColor = Color.Transparent,
+        floatingActionButton = {
+            Column(horizontalAlignment = Alignment.End) {
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = isFabExpanded,
+                    enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically(initialOffsetY = { 50 }),
+                    exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.slideOutVertically(targetOffsetY = { 50 })
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("Iniciar rutina", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            SmallFloatingActionButton(
+                                onClick = {
+                                    isFabExpanded = false
+                                    showStartWorkoutSheet = true
+                                },
+                                containerColor = AccentPrimary,
+                                contentColor = Color.Black
+                            ) {
+                                Icon(Icons.Default.FitnessCenter, contentDescription = "Iniciar rutina")
+                            }
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("Registrar alimento", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            SmallFloatingActionButton(
+                                onClick = {
+                                    isFabExpanded = false
+                                    onNavigateToNutrition()
+                                },
+                                containerColor = AccentPrimary,
+                                contentColor = Color.Black
+                            ) {
+                                Icon(Icons.Default.Restaurant, contentDescription = "Registrar alimento")
+                            }
+                        }
+                    }
+                }
+
+                FloatingActionButton(
+                    onClick = { isFabExpanded = !isFabExpanded },
+                    containerColor = AccentPrimary,
+                    contentColor = Color.Black,
+                    shape = CircleShape
+                ) {
+                    Icon(
+                        imageVector = if (isFabExpanded) Icons.Default.Close else Icons.Default.Add,
+                        contentDescription = "Expandir menú",
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
+        }
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -110,9 +201,87 @@ fun HomeScreen(
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition()
+                    val pulseScale by infiniteTransition.animateFloat(
+                        initialValue = 0.95f,
+                        targetValue = 1.1f,
+                        animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                            animation = androidx.compose.animation.core.tween(1000, easing = androidx.compose.animation.core.FastOutSlowInEasing),
+                            repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+                        ),
+                        label = "pulse_scale"
+                    )
+
+                    val streakBrush = androidx.compose.runtime.remember(currentStreak) {
+                        when {
+                            currentStreak < 7 -> Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFFF4A460), // Sandy Brown
+                                    Color(0xFFFFDAB9), // Peach
+                                    Color(0xFFCD853F), // Peru/Bronze
+                                    Color(0xFF8B4513)  // Saddle Brown
+                                )
+                            )
+                            currentStreak < 21 -> Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFFE5E4E2), // Platinum
+                                    Color(0xFFFFFFFF),
+                                    Color(0xFF9E9E9E),
+                                    Color(0xFFF5F5F5)
+                                )
+                            )
+                            currentStreak < 50 -> Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFFFFD700), // Gold
+                                    Color(0xFFFFFFE0),
+                                    Color(0xFFDAA520),
+                                    Color(0xFFB8860B)
+                                )
+                            )
+                            else -> Brush.linearGradient(
+                                colors = listOf(
+                                    Color(0xFF00E5FF), // TikTok Blue
+                                    Color(0xFFB388FF), // Light Purple
+                                    Color(0xFFFF0050), // TikTok Red/Pink
+                                    Color(0xFF7C4DFF)  // Deep Purple
+                                )
+                            )
+                        }
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Box(modifier = Modifier.graphicsLayer {
+                            scaleX = pulseScale
+                            scaleY = pulseScale
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.LocalFireDepartment,
+                                contentDescription = "Racha",
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .graphicsLayer(alpha = 0.99f)
+                                    .drawWithCache {
+                                        onDrawWithContent {
+                                            drawContent()
+                                            drawRect(streakBrush, blendMode = androidx.compose.ui.graphics.BlendMode.SrcAtop)
+                                        }
+                                    }
+                            )
+                        }
+                        Text(
+                            text = "$currentStreak",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Black,
+                            style = androidx.compose.ui.text.TextStyle(brush = streakBrush)
+                        )
+                    }
+
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                         IconButton(
                             onClick = onOpenProfile,
@@ -148,55 +317,15 @@ fun HomeScreen(
 
             // Supercard: daily calories, streak, weight and routine launcher
             item {
-                val today = java.time.LocalDate.now()
-                val logsByDate = sessions.groupBy { 
-                    java.time.Instant.ofEpochMilli(it.dateMillis).atZone(java.time.ZoneId.systemDefault()).toLocalDate() 
-                }
-                
-                var currentStreak = 0
-                var checkDate = today
-                if (!logsByDate.containsKey(today) && logsByDate.containsKey(today.minusDays(1))) {
-                    checkDate = today.minusDays(1)
-                }
-                while (logsByDate.containsKey(checkDate)) {
-                    currentStreak++
-                    checkDate = checkDate.minusDays(1)
-                }
-
                 val lastSessionForCals = sessions.maxByOrNull { it.dateMillis }
                 val burnedCals = lastSessionForCals?.burnedCalories ?: 0
-                var isEditingWeight by remember { mutableStateOf(false) }
-                var weightInput by remember { mutableStateOf(settings.bodyWeight.toString()) }
-
-                LaunchedEffect(settings.bodyWeight) {
-                    weightInput = settings.bodyWeight.toString()
-                }
-
-                val saveWeight = {
-                    val wt = weightInput.toDoubleOrNull() ?: settings.bodyWeight
-                    viewModel.logWeight(wt)
-                }
 
                 HomeDailySupercard(
                     modifier = Modifier.fillMaxWidth(),
                     consumedCalories = consumedCalories,
                     burnedCalories = burnedCals,
                     targetCalories = targetCalories,
-                    currentStreak = currentStreak,
-                    settings = settings,
-                    isEditingWeight = isEditingWeight,
-                    weightInput = weightInput,
-                    onWeightInputChange = { weightInput = it },
-                    onToggleWeightEdit = {
-                        if (isEditingWeight) saveWeight()
-                        isEditingWeight = !isEditingWeight
-                    },
-                    onWeightDone = {
-                        saveWeight()
-                        isEditingWeight = false
-                    },
-                    onOpenWeightHistory = { showWeightHistorySheet = true },
-                    onStartRoutine = { showStartWorkoutSheet = true }
+                    settings = settings
                 )
             }
 
@@ -287,7 +416,7 @@ fun HomeScreen(
                                                     parts.forEachIndexed { index, part ->
                                                         append(part)
                                                         if (index < matches.size) {
-                                                            withStyle(style = androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold, color = AccentGreen)) {
+                                                            withStyle(style = androidx.compose.ui.text.SpanStyle(fontWeight = FontWeight.Bold, color = AccentPrimary)) {
                                                                 append(matches[index].groupValues[1])
                                                             }
                                                         }
@@ -484,196 +613,67 @@ private fun HomeDailySupercard(
     consumedCalories: Int,
     burnedCalories: Int,
     targetCalories: Int,
-    currentStreak: Int,
-    settings: FitSettings,
-    isEditingWeight: Boolean,
-    weightInput: String,
-    onWeightInputChange: (String) -> Unit,
-    onToggleWeightEdit: () -> Unit,
-    onWeightDone: () -> Unit,
-    onOpenWeightHistory: () -> Unit,
-    onStartRoutine: () -> Unit
+    settings: FitSettings
 ) {
-    val green = AccentGreen
+    val green = AccentPrimary
     val red = AccentRed
-    val amber = AccentAmber
-    val greenCol = AccentGreen
     val netCalories = consumedCalories - burnedCalories
     val progress = if (targetCalories > 0) {
         (netCalories.coerceAtLeast(0).toFloat() / targetCalories).coerceIn(0f, 1f)
     } else {
         0f
     }
-    val progressText = if (targetCalories > 0) "${(progress * 100).toInt()}% de meta diaria" else "Meta sin configurar"
 
     Box(
         modifier = modifier
             .supercardGlassModifier(RoundedCornerShape(24.dp))
-            .padding(16.dp)
+            .padding(vertical = 24.dp, horizontal = 20.dp)
     ) {
-
-        Column(
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(15.dp)
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
+                horizontalAlignment = Alignment.Start
             ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Surface(
-                        color = green.copy(alpha = 0.18f),
-                        shape = CircleShape
-                    ) {
+                // Consumed
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(Icons.Default.Restaurant, contentDescription = null, tint = green, modifier = Modifier.size(24.dp))
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Text(stringResource(R.string.home_consumed_cals), color = TextSecundario, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         Text(
-                            text = progressText,
-                            color = Color(0xFFD9FFE9),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
-                            maxLines = 1
-                        )
-                    }
-
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text(
-                            text = "%,d".format(Locale.US, netCalories),
+                            text = "%,d kcal".format(Locale.US, consumedCalories),
                             color = Color.White,
-                            fontSize = 42.sp,
-                            lineHeight = 42.sp,
-                            fontWeight = FontWeight.Black,
-                            maxLines = 1
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.width(5.dp))
+                    }
+                }
+                
+                // Burned
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(Icons.Default.LocalFireDepartment, contentDescription = null, tint = red, modifier = Modifier.size(24.dp))
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Text(stringResource(R.string.home_burned_cals), color = TextSecundario, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         Text(
-                            text = "kcal netas",
-                            color = TextSecundario,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 5.dp)
+                            text = "%,d kcal".format(Locale.US, burnedCalories),
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
-
-                SupercardProgressRing(
-                    progress = progress,
-                    color = green,
-                    modifier = Modifier.size(80.dp)
-                )
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                    SummaryMetricCell(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.Restaurant,
-                        label = stringResource(R.string.home_consumed_cals),
-                        value = "%,d".format(Locale.US, consumedCalories),
-                        unit = "kcal",
-                        accent = green
-                    )
-                    SummaryMetricCell(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.LocalFireDepartment,
-                        label = stringResource(R.string.home_burned_cals),
-                        value = "%,d".format(Locale.US, burnedCalories),
-                        unit = "kcal",
-                        accent = red
-                    )
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                    SummaryMetricCell(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Default.Whatshot,
-                        label = stringResource(R.string.home_streak),
-                        value = "$currentStreak",
-                        unit = "días",
-                        accent = amber,
-                        animateIcon = true
-                    )
-                    WeightMetricCell(
-                        modifier = Modifier.weight(1f),
-                        settings = settings,
-                        isEditingWeight = isEditingWeight,
-                        weightInput = weightInput,
-                        onWeightInputChange = onWeightInputChange,
-                        onToggleWeightEdit = onToggleWeightEdit,
-                        onWeightDone = onWeightDone,
-                        onOpenWeightHistory = onOpenWeightHistory,
-                        accent = greenCol
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(Color.Transparent, Color.White.copy(alpha = 0.18f), Color.Transparent)
-                        )
-                    )
+            SupercardProgressRing(
+                progress = progress,
+                netCalories = netCalories,
+                color = green,
+                modifier = Modifier.size(130.dp)
             )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Entreno pendiente",
-                        color = Color.White,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1
-                    )
-                    Text(
-                        text = stringResource(R.string.home_start_workout_desc),
-                        color = TextSecundario,
-                        fontSize = 11.sp,
-                        maxLines = 1
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .metricCellGlassModifier(RoundedCornerShape(18.dp))
-                        .bounceClick { onStartRoutine() }
-                        .padding(start = 10.dp, end = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(Color.White.copy(alpha = 0.12f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                    Text(
-                        text = "${stringResource(R.string.home_start)} ${stringResource(R.string.home_routine).lowercase(Locale.getDefault())}",
-                        color = Color.White,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1
-                    )
-                }
-            }
         }
     }
 }
@@ -681,12 +681,13 @@ private fun HomeDailySupercard(
 @Composable
 private fun SupercardProgressRing(
     progress: Float,
+    netCalories: Int,
     color: Color,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            val stroke = Stroke(width = 8.dp.toPx(), cap = StrokeCap.Round)
+            val stroke = Stroke(width = 14.dp.toPx(), cap = StrokeCap.Round)
             drawArc(
                 color = Color.White.copy(alpha = 0.25f),
                 startAngle = -90f,
@@ -702,260 +703,22 @@ private fun SupercardProgressRing(
                 style = stroke
             )
         }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Text(
-                text = "${(progress * 100).toInt()}%",
+                text = "%,d".format(Locale.US, netCalories),
                 color = Color.White,
-                fontSize = 17.sp,
+                fontSize = 26.sp,
                 fontWeight = FontWeight.Black,
-                lineHeight = 17.sp
+                lineHeight = 26.sp
             )
             Text(
-                text = "META",
+                text = "kcal netas",
                 color = TextSecundario,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 1.sp
-            )
-        }
-    }
-}
-
-@Composable
-private fun AnimatedFlameIcon(
-    accent: Color,
-    modifier: Modifier = Modifier
-) {
-    val scale = remember { Animatable(1f) }
-    val alpha = remember { Animatable(1f) }
-
-    LaunchedEffect(Unit) {
-        val flickers = listOf(
-            1.05f, 0.88f,
-            0.96f, 0.85f,
-            1.03f, 0.92f,
-            0.97f, 0.87f,
-            1.04f, 0.90f,
-            1.01f, 0.96f,
-            1.00f, 1.00f
-        )
-        for (i in flickers.indices step 2) {
-            scale.animateTo(flickers[i], spring(dampingRatio = 0.35f, stiffness = 450f))
-            alpha.animateTo(flickers[i + 1], spring(dampingRatio = 0.5f, stiffness = 550f))
-        }
-    }
-
-    Box(
-        modifier = modifier
-            .background(accent.copy(alpha = 0.17f), CircleShape)
-            .graphicsLayer {
-                scaleX = scale.value
-                scaleY = scale.value
-                this.alpha = alpha.value
-            },
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Whatshot,
-            contentDescription = "Racha",
-            tint = accent,
-            modifier = Modifier.size(15.dp)
-        )
-    }
-}
-
-@Composable
-private fun SummaryMetricCell(
-    modifier: Modifier = Modifier,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String,
-    unit: String,
-    accent: Color,
-    animateIcon: Boolean = false
-) {
-    Column(
-        modifier = modifier
-            .heightIn(min = 82.dp)
-            .metricCellGlassModifier(RoundedCornerShape(18.dp))
-            .padding(10.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (animateIcon) {
-                AnimatedFlameIcon(
-                    accent = accent,
-                    modifier = Modifier.size(28.dp)
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .background(accent.copy(alpha = 0.17f), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(imageVector = icon, contentDescription = label, tint = accent, modifier = Modifier.size(15.dp))
-                }
-            }
-            Text(
-                text = label.uppercase(Locale.getDefault()),
-                color = TextSecundario,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Black,
-                maxLines = 1
-            )
-        }
-        Row(verticalAlignment = Alignment.Bottom) {
-            Text(
-                text = value,
-                color = Color.White,
-                fontSize = 22.sp,
-                lineHeight = 22.sp,
-                fontWeight = FontWeight.Black,
-                maxLines = 1
-            )
-            Spacer(modifier = Modifier.width(3.dp))
-            Text(
-                text = unit,
-                color = TextSecundario,
-                fontSize = 10.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 2.dp),
-                maxLines = 1
+                textAlign = TextAlign.Center
             )
         }
-    }
-}
-
-@Composable
-private fun WeightMetricCell(
-    modifier: Modifier = Modifier,
-    settings: FitSettings,
-    isEditingWeight: Boolean,
-    weightInput: String,
-    onWeightInputChange: (String) -> Unit,
-    onToggleWeightEdit: () -> Unit,
-    onWeightDone: () -> Unit,
-    onOpenWeightHistory: () -> Unit,
-    accent: Color
-) {
-    Column(
-        modifier = modifier
-            .heightIn(min = 82.dp)
-            .metricCellGlassModifier(RoundedCornerShape(18.dp))
-            .padding(10.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .background(accent.copy(alpha = 0.17f), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(imageVector = Icons.Default.MonitorWeight, contentDescription = null, tint = accent, modifier = Modifier.size(15.dp))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                MetricActionButton(
-                    icon = Icons.Default.History,
-                    contentDescription = "Historial de Peso",
-                    onClick = onOpenWeightHistory
-                )
-                MetricActionButton(
-                    icon = if (isEditingWeight) Icons.Default.Check else Icons.Default.Edit,
-                    contentDescription = if (isEditingWeight) stringResource(R.string.home_save_weight) else stringResource(R.string.home_edit_weight),
-                    onClick = onToggleWeightEdit
-                )
-            }
-        }
-
-        if (isEditingWeight) {
-            val focusRequester = remember { androidx.compose.ui.focus.FocusRequester() }
-            LaunchedEffect(Unit) { focusRequester.requestFocus() }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .liquidGlassModifier(RoundedCornerShape(8.dp))
-                    .padding(horizontal = 8.dp, vertical = 5.dp)
-            ) {
-                androidx.compose.foundation.text.BasicTextField(
-                    value = weightInput,
-                    onValueChange = onWeightInputChange,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(onDone = { onWeightDone() }),
-                    singleLine = true,
-                    textStyle = androidx.compose.ui.text.TextStyle(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Black,
-                        color = Color.White,
-                        textAlign = TextAlign.Center
-                    ),
-                    cursorBrush = androidx.compose.ui.graphics.SolidColor(Color.White),
-                    modifier = Modifier
-                        .width(54.dp)
-                        .focusRequester(focusRequester)
-                )
-                Text(
-                    text = "kg",
-                    color = TextSecundario,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        } else {
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = "${settings.bodyWeight}",
-                    color = Color.White,
-                    fontSize = 22.sp,
-                    lineHeight = 22.sp,
-                    fontWeight = FontWeight.Black,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.width(3.dp))
-                Text(
-                    text = "kg",
-                    color = TextSecundario,
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 2.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun MetricActionButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    contentDescription: String,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .size(24.dp)
-            .clip(CircleShape)
-            .background(AmoledSurface)
-            .bounceClick { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = Color.White,
-            modifier = Modifier.size(13.dp)
-        )
     }
 }
 
@@ -1122,7 +885,7 @@ fun ProfileSetupContent(
             fontWeight = FontWeight.Bold,
             style = androidx.compose.ui.text.TextStyle(
                 brush = androidx.compose.ui.graphics.Brush.linearGradient(
-                    colors = listOf(Color.White, AccentGreen)
+                    colors = listOf(Color.White, AccentPrimary)
                 )
             )
         )
@@ -1320,7 +1083,7 @@ fun ProfileSetupContent(
                     text = if (calculatedCalories > 0) stringResource(R.string.home_kcal_per_day, calculatedCalories) else stringResource(R.string.home_missing_data),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = AccentGreen
+                    color = AccentPrimary
                 )
             }
         }
@@ -1577,7 +1340,7 @@ fun WeightHistorySheetContent(weightEntries: List<WeightEntry>, onClear: () -> U
                 Text(
                     text = "Limpiar",
                     fontSize = 14.sp,
-                    color = AccentGreen,
+                    color = AccentPrimary,
                     modifier = Modifier.bounceClick { onClear() }.padding(8.dp)
                 )
             }
@@ -1643,7 +1406,7 @@ fun CoachHistorySheetContent(
                 color = Color.White
             )
             androidx.compose.material3.TextButton(onClick = onNewChat) {
-                Text(text = "Nuevo Chat", color = AccentGreen)
+                Text(text = "Nuevo Chat", color = AccentPrimary)
             }
         }
         Spacer(modifier = Modifier.height(16.dp))

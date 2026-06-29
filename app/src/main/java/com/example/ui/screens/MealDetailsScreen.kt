@@ -29,6 +29,7 @@ import com.example.data.database.Food
 import com.example.data.database.Meal
 import com.example.ui.FitnessViewModel
 import com.example.ui.theme.*
+import com.example.ui.theme.AppTextStyle
 import com.example.ui.components.ApiKeyDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,9 +84,7 @@ fun MealDetailsScreen(
             Column {
                 Text(
                     text = selectedCategory,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    style = AppTextStyle.headlineOswald.copy(color = Color.White)
                 )
                 Text(
                     text = "$dateString",
@@ -106,7 +105,7 @@ fun MealDetailsScreen(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .then(if (isSelected) Modifier.background(AccentGreen, RoundedCornerShape(12.dp)) else Modifier.liquidGlassModifier(RoundedCornerShape(12.dp)))
+                        .then(if (isSelected) Modifier.background(AccentPrimary, RoundedCornerShape(12.dp)) else Modifier.liquidGlassModifier(RoundedCornerShape(12.dp)))
                         .clickable { selectedCategory = cat }
                         .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
@@ -133,17 +132,15 @@ fun MealDetailsScreen(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (mealAnalysisLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(16.dp), color = AccentGreen, strokeWidth = 2.dp)
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), color = AccentPrimary, strokeWidth = 2.dp)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "Analizando...", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(text = stringResource(R.string.meal_analyzing), style = AppTextStyle.statBig.copy(color = Color.White))
                 } else {
-                    Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = "AI", tint = AccentGreen)
+                    Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = "AI", tint = AccentPrimary)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = stringResource(R.string.meal_analyze_ai),
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        fontSize = 14.sp
+                        style = AppTextStyle.statBig.copy(color = Color.White)
                     )
                 }
             }
@@ -151,9 +148,7 @@ fun MealDetailsScreen(
 
         Text(
             text = stringResource(R.string.meal_logged_foods),
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
+            style = AppTextStyle.statBig.copy(color = Color.White)
         )
 
         // List of logged foods
@@ -201,9 +196,7 @@ fun MealDetailsScreen(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
                                     text = "Total: ${meal.totalCalories} kcal  |  P: ${meal.totalProtein.toInt()}g  |  C: ${meal.totalCarbs.toInt()}g  |  G: ${meal.totalFat.toInt()}g",
-                                    fontSize = 11.sp,
-                                    color = TextSecundario,
-                                    fontWeight = FontWeight.Bold
+                                    style = AppTextStyle.statSmall.copy(color = TextSecundario)
                                 )
                             }
 
@@ -259,9 +252,7 @@ fun MealDetailsScreen(
             title = {
                 Text(
                     text = stringResource(R.string.meal_natural_language),
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    fontSize = 18.sp
+                    style = AppTextStyle.numberSmall.copy(color = Color.White)
                 )
             },
             text = {
@@ -288,7 +279,7 @@ fun MealDetailsScreen(
                             unfocusedTextColor = Color.White,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
-                            cursorColor = AccentGreen
+                            cursorColor = AccentPrimary
                         ),
                         shape = RoundedCornerShape(12.dp)
                     )
@@ -309,10 +300,10 @@ fun MealDetailsScreen(
                         showAiAnalysisDialog = false
                     },
                     enabled = mealDescriptionInput.trim().isNotEmpty(),
-                    colors = ButtonDefaults.buttonColors(containerColor = AccentGreen, contentColor = Color.Black),
+                    colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary, contentColor = Color.Black),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(text = "Analizar", fontWeight = FontWeight.Bold)
+                    Text(text = stringResource(R.string.meal_analyze), fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {

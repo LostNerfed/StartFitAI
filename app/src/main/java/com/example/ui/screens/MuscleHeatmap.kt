@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import kotlin.math.min
+import com.example.ui.theme.SurfaceDark
 import com.example.ui.theme.TextSecundario
 import com.example.ui.theme.liquidGlassModifier
 
@@ -97,7 +98,7 @@ fun MuscleHeatmap(
 
 @Composable
 fun AnatomyCanvas(paths: List<Pair<String, String>>, muscleVolumes: Map<String, Double>) {
-    val strokeColor = Color(0xFF1C1C1E)
+    val strokeColor = SurfaceDark
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         val canvasWidth = size.width

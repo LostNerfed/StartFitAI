@@ -139,6 +139,9 @@ dependencies {
   implementation(libs.androidx.navigation.compose)
   implementation(libs.converter.moshi)
 
+  // Lottie for animations
+  implementation("com.airbnb.android:lottie-compose:6.4.0")
+
   // Gemini SDK (without Firebase)
 
   implementation(libs.kotlinx.coroutines.android)

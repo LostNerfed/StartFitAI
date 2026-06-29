@@ -46,6 +46,7 @@ import com.example.data.database.Session
 import com.example.data.database.SessionLog
 import com.example.ui.FitnessViewModel
 import com.example.ui.theme.*
+import com.example.ui.theme.AppTextStyle
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -118,9 +119,7 @@ fun ProgressScreen(
         item {
             Text(
                 text = stringResource(R.string.prog_analytics),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                style = AppTextStyle.headlineOswald.copy(color = Color.White)
             )
         }
         // Heatmap Matrix
@@ -210,9 +209,7 @@ fun ProgressScreen(
                             Text(
                                 text = ym.month.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
                                     .replaceFirstChar { if (it.isLowerCase()) it.titlecase(java.util.Locale.getDefault()) else it.toString() },
-                                color = Color.White,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
+                                style = AppTextStyle.statSmall.copy(color = Color.White),
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 modifier = Modifier.padding(bottom = 4.dp)
                             )
@@ -231,8 +228,7 @@ fun ProgressScreen(
                                             ) {
                                                 Text(
                                                     text = label,
-                                                    color = TextSecundario,
-                                                    fontSize = 9.sp,
+                                                    style = AppTextStyle.statSmall.copy(color = TextSecundario),
                                                     lineHeight = 9.sp,
                                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                                 )
@@ -261,7 +257,7 @@ fun ProgressScreen(
                                                     Box(
                                                         modifier = Modifier
                                                             .size(14.dp)
-                                                            .background(Color(0xFF1C1C1E), RoundedCornerShape(3.dp))
+                                                            .background(SurfaceDark, RoundedCornerShape(3.dp))
                                                     )
                                                 } else {
                                                     val didTrain = trainingDates.contains(cellDate)
@@ -339,7 +335,7 @@ fun ProgressScreen(
                             .padding(16.dp)
                     ) {
                         Column {
-                            Text("Volumen Acumulado", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(stringResource(R.string.prog_accumulated_volume), style = AppTextStyle.statSmall.copy(color = Color.White))
                             Spacer(modifier = Modifier.height(8.dp))
                             Chart(
                                 chart = lineChart(),
@@ -361,10 +357,8 @@ fun ProgressScreen(
         item {
             Text(
                 text = stringResource(R.string.prog_exercises_records),
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp)
+                style = AppTextStyle.statBig.copy(color = Color.White),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp)
             )
         }
 
@@ -402,7 +396,7 @@ fun ProgressScreen(
                         .supercardGlassModifier(RoundedCornerShape(12.dp))
                         .clip(RoundedCornerShape(12.dp))
                         .clickable { isExpanded = !isExpanded }
-                        .padding(horizontal = 16.dp, vertical = 10.dp)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -419,14 +413,12 @@ fun ProgressScreen(
                                 2 -> Color(0xFFCD7F32)
                                 else -> AccentAmber
                             }
-                            Icon(imageVector = Icons.Default.EmojiEvents, contentDescription = "Exercise", tint = trophyColor, modifier = Modifier.size(16.dp))
+                            Icon(imageVector = Icons.Default.EmojiEvents, contentDescription = "Exercise", tint = trophyColor, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
                                 Text(
                                     text = exerciseName, 
-                                    fontWeight = FontWeight.Bold, 
-                                    fontSize = 14.sp, 
-                                    color = Color.White,
+                                    style = AppTextStyle.statBig.copy(color = Color.White),
                                     maxLines = 2,
                                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                 )
@@ -437,7 +429,7 @@ fun ProgressScreen(
                         
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(horizontalAlignment = Alignment.End) {
-                                Text(text = stringResource(R.string.prog_record), fontSize = 10.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
+                                Text(text = stringResource(R.string.prog_record), style = AppTextStyle.statSmall.copy(color = TextSecundario))
                                 Text(text = stringResource(R.string.prog_record_value, viewModel.formatDisplayWeight(bestRecord.weight), viewModel.getUnitString().lowercase(), bestRecord.reps), fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = Color.White)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
@@ -479,14 +471,14 @@ fun ProgressScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .liquidGlassModifier(RoundedCornerShape(8.dp))
-                                        .padding(10.dp),
+                                        .padding(12.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(text = dateString, fontSize = 12.sp, color = TextSecundario)
                                         if (isPRSession) {
-                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Spacer(modifier = Modifier.width(8.dp))
                                             Icon(imageVector = Icons.Default.LocalFireDepartment, contentDescription = "PR", tint = AccentRed, modifier = Modifier.size(12.dp))
                                         }
                                     }
@@ -509,7 +501,7 @@ fun ProgressScreen(
                     TextButton(
                         onClick = { visibleLimit += 5 },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.textButtonColors(contentColor = AccentGreen)
+                        colors = ButtonDefaults.textButtonColors(contentColor = AccentPrimary)
                     ) {
                         Text(text = stringResource(R.string.prog_view_more), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
@@ -519,7 +511,7 @@ fun ProgressScreen(
                     TextButton(
                         onClick = { visibleLimit = 5 },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.textButtonColors(contentColor = AccentGreen)
+                        colors = ButtonDefaults.textButtonColors(contentColor = AccentPrimary)
                     ) {
                         Text(text = stringResource(R.string.prog_view_less), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
@@ -542,7 +534,7 @@ fun StatCard(
     Column(
         modifier = modifier
             .supercardGlassModifier(RoundedCornerShape(12.dp))
-            .padding(14.dp)
+            .padding(16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -550,10 +542,10 @@ fun StatCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = title, fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Medium)
-            Icon(imageVector = icon, contentDescription = title, tint = TextSecundario, modifier = Modifier.size(14.dp))
+            Icon(imageVector = icon, contentDescription = title, tint = TextSecundario, modifier = Modifier.size(16.dp))
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        Text(text = value, style = AppTextStyle.numberSmall.copy(color = Color.White))
         Text(text = sub, fontSize = 10.sp, color = TextSecundario)
     }
 }

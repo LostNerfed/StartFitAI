@@ -341,6 +341,7 @@ class FitnessRepository(context: Context) {
     }
 
     suspend fun insertExercise(exercise: Exercise) {
+        if (dao.exerciseExists(exercise.name)) return
         dao.insertExercise(
             ExerciseEntity(
                 id = UUID.randomUUID().toString(),
@@ -351,14 +352,15 @@ class FitnessRepository(context: Context) {
     }
 
     suspend fun insertExercises(exercises: List<Exercise>) {
-        val entities = exercises.map { ex ->
+        val entities = exercises.mapNotNull { ex ->
+            if (dao.exerciseExists(ex.name)) return@mapNotNull null
             ExerciseEntity(
                 id = UUID.randomUUID().toString(),
                 name = ex.name,
                 muscleGroup = ex.category
             )
         }
-        dao.insertExercises(entities)
+        if (entities.isNotEmpty()) dao.insertExercises(entities)
     }
 
     suspend fun getExercisesCount(): Int {
@@ -367,6 +369,10 @@ class FitnessRepository(context: Context) {
 
     suspend fun deleteExercise(exercise: Exercise) {
         dao.deleteExercise(exercise.name)
+    }
+
+    suspend fun deduplicateExercises() {
+        dao.deduplicateExercises()
     }
 
     // ─── Weight Entries ───────────────────────────────────────────────────────

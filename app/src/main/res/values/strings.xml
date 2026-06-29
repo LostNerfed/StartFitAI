@@ -97,13 +97,11 @@
     <string name="plan_my_routines">Mis Rutinas</string>
     <string name="plan_exercise_list">Lista de Ejercicios</string>
     <string name="plan_your_routines">Tus Rutinas</string>
-    <string name="plan_templates_subtitle">Plantillas de entrenamiento programadas</string>
     <string name="plan_import_routines">Importar Rutinas</string>
     <string name="plan_export_routines">Exportar Rutinas</string>
     <string name="plan_no_routines">No tienes rutinas programadas.
 Crea tu primera plantilla del día aquí arriba.</string>
     <string name="plan_exercises_title">Ejercicios</string>
-    <string name="plan_exercises_subtitle">Tus ejercicios guardados para usar</string>
     <string name="plan_new_exercise">Nuevo Ejercicio</string>
     <string name="plan_upper_body_section">PARTE SUPERIOR (Torso / Brazos)</string>
     <string name="plan_lower_body_section">PARTE INFERIOR (Pierna / Abdomen)</string>
@@ -295,10 +293,10 @@ Crea tu primera plantilla del día aquí arriba.</string>
     <string name="home_main_fitness_goal">Objetivo Fitness Principal</string>
 
     
-    <string name="goal_hypertrophy">Hipertrofia / Ganar Músculo</string>
+    <string name="goal_hypertrophy">Hipertrofia</string>
     <string name="goal_fat_loss">Pérdida de Grasa / Definición</string>
-    <string name="goal_strength">Fuerza y Rendimiento</string>
-    <string name="goal_maintenance">Mantenimiento / Salud General</string>
+    <string name="goal_strength">Fuerza</string>
+    <string name="goal_maintenance">Mantenimiento</string>
 
     
     <string name="activity_sedentary">Sedentario (0 entrenamientos/sem)</string>
@@ -318,7 +316,7 @@ Crea tu primera plantilla del día aquí arriba.</string>
     <string name="auth_synergy">Start</string>
     <string name="auth_fit">Fit AI</string>
     <string name="auth_terms">Términos y Privacidad</string>
-    <string name="auth_privacy_desc">Todos tus datos se almacenan exclusivamente de forma local. No enviamos información a servidores externos.</string>
+    <string name="auth_privacy_desc">Tus datos se respaldan de manera segura en la nube para mantener tu perfil sincronizado.</string>
     <string name="meal_ai_desc">Describe lo que comiste exactamente. Nuestro Coach de IA calculará las calorías, carbohidratos, proteínas y grasas.</string>
     <string name="cal_history">Historial de Entrenamiento</string>
     <string name="settings_title_main">Ajustes de Start Fit AI</string>
@@ -335,7 +333,7 @@ Crea tu primera plantilla del día aquí arriba.</string>
     <string name="home_select_template">Selecciona una plantilla de rutina para cargar tus series y comenzar a registrar.</string>
     <string name="home_log_on_the_fly">Registrar ejercicio a ejercicio en el momento</string>
     <string name="home_routine_templates">Tus Plantillas de Rutinas</string>
-    <string name="tab_routines">Rutinas</string>
+    <string name="tab_routines">Entrenamiento</string>
     <string name="tab_history">Historial</string>
     <string name="auth_btn_next">Siguiente</string>
     <string name="auth_btn_continue">Continuar</string>
@@ -347,7 +345,7 @@ Crea tu primera plantilla del día aquí arriba.</string>
     <string name="auth_err_height">Por favor introduce una altura válida</string>
     <string name="auth_err_weight">Por favor introduce un peso válido</string>
     <string name="auth_err_cals">Por favor introduce una meta de calorías válida</string>
-    <string name="goal_fatloss">Pérdida de Grasa / Definición</string>
+    <string name="goal_fatloss">Pérdida de Grasa</string>
     <string name="main_training_status">Entrenando: %1$s • %2$s</string>
     <string name="settings_preferences_section">PREFERENCIAS</string>
     <string name="settings_language">Idioma de la App</string>
@@ -399,4 +397,23 @@ Crea tu primera plantilla del día aquí arriba.</string>
     <string name="cat_triceps">Tríceps</string>
     <string name="cat_forearms">Antebrazo</string>
     <string name="cat_others">Otros</string>
+
+    
+    <string name="auth_searching_profile_cloud">Buscando tu perfil en la nube...</string>
+    <string name="auth_google_session_started">¡Sesión de Google iniciada! Configurando tu perfil...</string>
+    <string name="auth_continue_google">Continuar con Google</string>
+    <string name="auth_anonymous_user">Usuario anónimo</string>
+    <string name="home_weight_history">Historial de Peso</string>
+    <string name="home_clear">Limpiar</string>
+    <string name="home_weight_unit">kg</string>
+    <string name="home_coach_ai_history">Historial Coach AI</string>
+    <string name="home_new_chat">Nuevo Chat</string>
+    <string name="home_no_chat_history">No hay historial de chats.</string>
+    <string name="prog_accumulated_volume">Volumen Acumulado</string>
+    <string name="plan_main_muscle">Músculo Principal *</string>
+    <string name="plan_select_muscle">Selecciona un músculo...</string>
+    <string name="plan_add_exercises_optional">Añadir ejercicios a la rutina (Opcional)</string>
+    <string name="aw_plus_30s">+30s</string>
+    <string name="meal_analyzing">Analizando...</string>
+    <string name="meal_analyze">Analizar</string>
 </resources>

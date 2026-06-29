@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.ui.FitnessViewModel
 import com.example.ui.theme.*
+import com.example.ui.theme.AppTextStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +50,18 @@ fun ProfileScreen(
     val currentAge = ageStr.toIntOrNull() ?: settings.age
     val currentHeight = heightStr.toDoubleOrNull() ?: settings.heightCm
     val currentWeight = weightStr.toDoubleOrNull() ?: settings.bodyWeight
-    val goalsList = listOf(
+    val activityDisplayLabels = listOf("Ningún entrenamiento", "1-3 entrenamientos", "3-5 entrenamientos", "5-7 entrenamientos", "Más de 7")
+    val activityValues = listOf(
+        stringResource(R.string.activity_sedentary),
+        stringResource(R.string.activity_light),
+        stringResource(R.string.activity_moderate),
+        stringResource(R.string.activity_active),
+        stringResource(R.string.activity_very_active)
+    )
+    var activityLevel by remember { mutableStateOf(settings.activityLevel) }
+
+    val goalsDisplayLabels = listOf("Hipertrofia", "Pérdida de Grasa", "Fuerza y Rendimiento", "Mantenimiento", "Manual")
+    val goalsValues = listOf(
         stringResource(R.string.goal_hypertrophy),
         stringResource(R.string.goal_fat_loss),
         stringResource(R.string.goal_strength),
@@ -57,8 +69,6 @@ fun ProfileScreen(
         stringResource(R.string.prog_manual)
     )
     var selectedGoal by remember { mutableStateOf(settings.fitnessGoal) }
-    
-    var activityLevel by remember { mutableStateOf(settings.activityLevel) }
 
     val calculatedCalories = remember(currentAge, currentHeight, currentWeight, gender, activityLevel, selectedGoal) {
         if (currentAge <= 0 || currentHeight <= 0.0 || currentWeight <= 0.0) return@remember 0
@@ -83,14 +93,6 @@ fun ProfileScreen(
         }
         (tdee * goalMultiplier).toInt()
     }
-
-    val activityOptions = listOf(
-        stringResource(R.string.activity_sedentary),
-        stringResource(R.string.activity_light),
-        stringResource(R.string.activity_moderate),
-        stringResource(R.string.activity_active),
-        stringResource(R.string.activity_very_active)
-    )
 
     Scaffold(
         modifier = Modifier.fillMaxSize().background(Color.Transparent),
@@ -121,19 +123,11 @@ fun ProfileScreen(
 
             Text(
                 text = stringResource(R.string.home_hello_user, settings.username),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                style = androidx.compose.ui.text.TextStyle(
+                style = AppTextStyle.headlineOswald.copy(
                     brush = androidx.compose.ui.graphics.Brush.linearGradient(
-                        colors = listOf(Color.White, AccentGreen)
+                        colors = listOf(Color.White, AccentPrimary)
                     )
                 )
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.home_profile_desc),
-                fontSize = 12.sp,
-                color = TextSecundario
             )
             
             HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp), color = Color.White.copy(alpha = 0.15f))
@@ -275,14 +269,14 @@ fun ProfileScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp), color = Color.White.copy(alpha = 0.15f))
 
             // Activity level dropdown
-            Text(text = stringResource(R.string.home_weekly_activity), fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.home_weekly_activity), style = AppTextStyle.titleOswald.copy(color = Color.White))
             Spacer(modifier = Modifier.height(12.dp))
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                activityOptions.forEach { option ->
-                    val isSelected = option == activityLevel
+                activityValues.forEachIndexed { index, value ->
+                    val isSelected = value == activityLevel
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -290,12 +284,12 @@ fun ProfileScreen(
                                 if (isSelected) Modifier.background(Color.White.copy(alpha = 0.97f), RoundedCornerShape(8.dp))
                                 else Modifier.liquidGlassModifier(RoundedCornerShape(8.dp))
                             )
-                            .bounceClick { activityLevel = option }
+                            .bounceClick { activityLevel = value }
                             .padding(vertical = 12.dp, horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
-                            text = option,
+                            text = activityDisplayLabels[index],
                             color = if (isSelected) Color.Black else Color.White,
                             fontSize = 13.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
@@ -307,14 +301,14 @@ fun ProfileScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp), color = Color.White.copy(alpha = 0.15f))
 
             // Fitness Goal Selector
-            Text(text = stringResource(R.string.home_main_fitness_goal), fontSize = 16.sp, color = Color.White, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.home_main_fitness_goal), style = AppTextStyle.titleOswald.copy(color = Color.White))
             Spacer(modifier = Modifier.height(12.dp))
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                goalsList.forEach { goal ->
-                    val isSelected = goal == selectedGoal
+                goalsValues.forEachIndexed { index, value ->
+                    val isSelected = value == selectedGoal
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -322,12 +316,12 @@ fun ProfileScreen(
                                 if (isSelected) Modifier.background(Color.White.copy(alpha = 0.97f), RoundedCornerShape(8.dp))
                                 else Modifier.liquidGlassModifier(RoundedCornerShape(8.dp))
                             )
-                            .bounceClick { selectedGoal = goal }
+                            .bounceClick { selectedGoal = value }
                             .padding(vertical = 12.dp, horizontal = 16.dp),
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
-                            text = goal,
+                            text = goalsDisplayLabels[index],
                             color = if (isSelected) Color.Black else Color.White,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
@@ -371,9 +365,7 @@ fun ProfileScreen(
                 ) {
                     Text(
                         text = if (calculatedCalories > 0) stringResource(R.string.home_kcal_per_day, calculatedCalories) else stringResource(R.string.home_missing_data),
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = AccentGreen
+                        style = AppTextStyle.numberMedium.copy(color = AccentPrimary)
                     )
                 }
             }
@@ -416,7 +408,7 @@ fun ProfileScreen(
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(stringResource(R.string.settings_save), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(stringResource(R.string.settings_save), style = AppTextStyle.statBig.copy(color = Color.White))
             }
 
             Spacer(modifier = Modifier.height(40.dp))

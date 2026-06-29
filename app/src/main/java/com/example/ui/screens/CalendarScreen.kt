@@ -31,6 +31,7 @@ import com.example.data.database.Session
 import com.example.data.database.SessionLog
 import com.example.ui.FitnessViewModel
 import com.example.ui.theme.*
+import com.example.ui.theme.AppTextStyle
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.stringArrayResource
 import com.example.R
@@ -91,9 +92,7 @@ fun CalendarScreen(
         item {
             Text(
                 text = stringResource(R.string.cal_training_history),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                style = AppTextStyle.headlineOswald.copy(color = Color.White)
             )
         }
 
@@ -109,9 +108,7 @@ fun CalendarScreen(
 
                 Text(
                     text = monthTitle,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    style = AppTextStyle.titleOswald.copy(color = Color.White)
                 )
 
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -156,9 +153,7 @@ fun CalendarScreen(
                             text = d,
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextSecundario
+                            style = AppTextStyle.statSmall.copy(color = TextSecundario)
                         )
                     }
                 }
@@ -199,9 +194,7 @@ fun CalendarScreen(
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(
                                             text = "$dayNum",
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = if (isSelected) Color.Black else Color.White
+                                            style = AppTextStyle.statSmall.copy(color = if (isSelected) Color.Black else Color.White)
                                         )
                                         if (hasWorkout && !isSelected) {
                                             Box(
@@ -224,9 +217,7 @@ fun CalendarScreen(
             val displayTitleDate = SimpleDateFormat("EEEE, d 'de' MMMM", java.util.Locale.getDefault()).format(selectedWorkDate.time).replaceFirstChar { it.uppercase() }
             Text(
                 text = stringResource(R.string.cal_sessions_of, displayTitleDate),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextSecundario,
+                style = AppTextStyle.statBig.copy(color = TextSecundario),
                 modifier = Modifier.padding(vertical = 4.dp)
             )
         }
@@ -280,9 +271,7 @@ fun CalendarScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = session.routineName,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
-                                color = Color.White
+                                style = AppTextStyle.statBig.copy(color = Color.White)
                             )
                         }
 
@@ -294,9 +283,7 @@ fun CalendarScreen(
                             ) {
                                 Text(
                                     text = stringResource(R.string.cal_duration_min, session.durationMinutes),
-                                    fontSize = 11.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
+                                    style = AppTextStyle.statSmall.copy(color = Color.White)
                                 )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
@@ -319,7 +306,7 @@ fun CalendarScreen(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 6.dp)
+                                            .padding(vertical = 8.dp)
                                 ) {
                                     Text(
                                         text = exName,
@@ -334,8 +321,8 @@ fun CalendarScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .metricCellGlassModifier(RoundedCornerShape(12.dp))
-                                            .padding(horizontal = 14.dp, vertical = 10.dp),
-                                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                                            .padding(horizontal = 12.dp, vertical = 12.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
                                         list.reversed().forEach { sLog ->
                                             val logLabel = if (sLog.isDropset) stringResource(R.string.cal_dropset) else stringResource(R.string.cal_set_index, sLog.setIndex)

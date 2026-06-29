@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.collectAsState
@@ -30,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import com.example.data.database.FitSettings
 import com.example.ui.FitnessViewModel
 import com.example.ui.theme.*
+import com.example.ui.theme.AppTextStyle
 import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
 
@@ -77,7 +79,7 @@ fun SettingsScreen(
 
             // 0. PREFERENCES SECTION
             item {
-                Text(text = stringResource(R.string.settings_preferences_section), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = TextSecundario)
+                Text(text = stringResource(R.string.settings_preferences_section), style = AppTextStyle.statSmall.copy(color = TextSecundario))
                 Spacer(modifier = Modifier.height(8.dp))
                 Column(
                     modifier = Modifier.fillMaxWidth().supercardGlassModifier(RoundedCornerShape(12.dp))
@@ -85,16 +87,16 @@ fun SettingsScreen(
                     SettingItemRow(
                         title = stringResource(R.string.settings_language),
                         sub = stringResource(R.string.settings_language_sub),
-                        icon = Icons.Default.Translate,
-                        iconTint = AccentGreen,
+                        icon = Icons.Outlined.Translate,
+                        iconTint = AccentPrimary,
                         onClick = { showLanguageSheet = true }
                     )
                     HorizontalDivider(color = BorderColorSubtle)
                     SettingItemRow(
                         title = "Sistema de Peso",
                         sub = "Unidad actual: ${settings.weightUnit.uppercase(java.util.Locale.getDefault())} (Toca para cambiar)",
-                        icon = Icons.Default.FitnessCenter,
-                        iconTint = AccentGreen,
+                        icon = Icons.Outlined.FitnessCenter,
+                        iconTint = AccentPrimary,
                         onClick = { viewModel.toggleWeightUnit() }
                     )
                 }
@@ -102,7 +104,7 @@ fun SettingsScreen(
 
             // 2. DANGER ZONE
             item {
-                Text(text = stringResource(R.string.settings_account_security), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = stringResource(R.string.settings_account_security), style = AppTextStyle.statSmall.copy(color = Color.White))
                 Spacer(modifier = Modifier.height(8.dp))
                 Column(
                     modifier = Modifier.fillMaxWidth().supercardGlassModifier(RoundedCornerShape(12.dp))
@@ -203,7 +205,7 @@ fun SettingItemRow(
         ) {
             Icon(imageVector = icon, contentDescription = title, tint = iconTint, modifier = Modifier.size(16.dp))
         }
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(text = title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
             Text(text = sub, fontSize = 11.sp, color = TextSecundario, maxLines = 2)
@@ -231,7 +233,7 @@ private fun SettingItemRowDeleted(
         ) {
             Icon(imageVector = icon, contentDescription = title, tint = Color.Black, modifier = Modifier.size(16.dp))
         }
-        Spacer(modifier = Modifier.width(14.dp))
+        Spacer(modifier = Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(text = title, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.Red)
             Text(text = sub, fontSize = 11.sp, color = TextSecundario, maxLines = 2)
@@ -250,7 +252,7 @@ fun LanguageSelectionContent(onLanguageSelected: (String) -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
-            imageVector = Icons.Default.Translate,
+            imageVector = Icons.Outlined.Translate,
             contentDescription = null,
             tint = Color.White,
             modifier = Modifier.size(48.dp).padding(bottom = 16.dp)

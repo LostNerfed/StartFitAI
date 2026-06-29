@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity() {
                 var isSettingsOpen by remember { mutableStateOf(false) }
                 var isProfileOpen by remember { mutableStateOf(false) }
                 var isWorkoutMinimized by remember { mutableStateOf(false) }
+                var isShowingProfileLoading by remember { mutableStateOf(false) }
 
                 val islandPadding by animateDpAsState(
                     targetValue = if (activeSession != null && isWorkoutMinimized) 34.dp else 0.dp,
@@ -127,7 +128,14 @@ class MainActivity : AppCompatActivity() {
                             onLoginSuccess = { name, isLbs, gender, age, height, activity, weight, targetCals, goal ->
                                 val weightUnit = if (isLbs) "lb" else "kg"
                                 val heightUnit = "cm"
+                                isShowingProfileLoading = true
                                 viewModel.loginLocalUser(name, weightUnit, heightUnit, gender, age, height, activity, weight, targetCals, goal)
+                            }
+                        )
+                    } else if (isShowingProfileLoading) {
+                        ProfileCreationLoadingScreen(
+                            onFinished = {
+                                isShowingProfileLoading = false
                             }
                         )
                     } else if (activeSession != null && !isWorkoutMinimized) {
@@ -265,7 +273,8 @@ class MainActivity : AppCompatActivity() {
                                             onStartCustomWorkout = {
                                                 viewModel.startCustomActiveWorkout()
                                                 isWorkoutMinimized = false
-                                            }
+                                            },
+                                            onNavigateToNutrition = { currentMainTab = "nutrition" }
                                         )
                                         "nutrition" -> NutritionHomeScreen(
                                             viewModel = viewModel,

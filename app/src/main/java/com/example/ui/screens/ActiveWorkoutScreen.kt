@@ -2,6 +2,10 @@ package com.example.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,7 +39,10 @@ import com.example.data.database.SessionLog
 import com.example.ui.components.getTranslatedCategory
 import com.example.ui.FitnessViewModel
 import com.example.ui.theme.*
+import com.example.ui.theme.AppTextStyle
 import kotlinx.coroutines.delay
+import android.app.Activity
+import android.view.HapticFeedbackConstants
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,9 +101,7 @@ fun ActiveWorkoutScreen(
                     Column {
                         Text(
                             text = currentSession.routineName,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            style = AppTextStyle.numberSmall.copy(color = Color.White)
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
@@ -132,35 +137,6 @@ fun ActiveWorkoutScreen(
                 .padding(innerPadding)
         ) {
             val restTimerSeconds by viewModel.restTimerSeconds.collectAsState()
-            androidx.compose.animation.AnimatedVisibility(
-                visible = restTimerSeconds > 0,
-                modifier = Modifier.align(Alignment.TopCenter).padding(top = 16.dp),
-                enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically(),
-                exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.slideOutVertically()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .background(AccentGreen, RoundedCornerShape(20.dp))
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .clickable { viewModel.adjustRestTimer(30) },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(imageVector = Icons.Default.Timer, contentDescription = "Timer", tint = Color.White, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    val min = restTimerSeconds / 60
-                    val sec = restTimerSeconds % 60
-                    Text(
-                        text = String.format(java.util.Locale.US, "%02d:%02d", min, sec),
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = "+30s", color = Color.White.copy(alpha=0.7f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel", tint = Color.White.copy(alpha=0.7f), modifier = Modifier.size(14.dp).clickable { viewModel.cancelRestTimer() })
-                }
-            }
 
             LazyColumn(
                 modifier = Modifier
@@ -208,9 +184,7 @@ fun ActiveWorkoutScreen(
                                 ) {
                                     Text(
                                         text = label,
-                                        color = if (isSelected) Color.Black else Color.White,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold
+                                        style = AppTextStyle.statSmall.copy(color = if (isSelected) Color.Black else Color.White)
                                     )
                                 }
                             }
@@ -236,9 +210,7 @@ fun ActiveWorkoutScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = exName,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
+                                    style = AppTextStyle.titleOswald.copy(color = Color.White),
                                     maxLines = 2,
                                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                 )
@@ -266,14 +238,14 @@ fun ActiveWorkoutScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         // Column heads
-                        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp)) {
-                            Text(text = stringResource(R.string.aw_set_header), modifier = Modifier.width(60.dp), fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
+                        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                            Text(text = stringResource(R.string.aw_set_header), modifier = Modifier.width(60.dp), style = AppTextStyle.statSmall.copy(color = TextSecundario))
                             Text(
                                 text = settings.weightUnit.uppercase(Locale.getDefault()) + " ▼", 
                                 modifier = Modifier.weight(1f).clickable { viewModel.toggleWeightUnit() }, 
-                                fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center
+                                style = AppTextStyle.statSmall.copy(color = TextSecundario), textAlign = TextAlign.Center
                             )
-                            Text(text = stringResource(R.string.aw_reps_header), modifier = Modifier.weight(1f), fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+                            Text(text = stringResource(R.string.aw_reps_header), modifier = Modifier.weight(1f), style = AppTextStyle.statSmall.copy(color = TextSecundario), textAlign = TextAlign.Center)
                             Spacer(modifier = Modifier.width(36.dp)) // space for delete action
                         }
 
@@ -284,9 +256,9 @@ fun ActiveWorkoutScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 2.dp)
+                                    .padding(vertical = 4.dp)
                                     .background(
-                                        if (isCompleted) AccentGreen.copy(alpha = 0.15f) else Color.Transparent, 
+                                        if (isCompleted) AccentPrimary.copy(alpha = 0.15f) else Color.Transparent, 
                                         RoundedCornerShape(8.dp)
                                     )
                                     .padding(vertical = 4.dp), // inner padding after background
@@ -300,9 +272,9 @@ fun ActiveWorkoutScreen(
                                         if (sLog.isDropset) {
                                             Icon(imageVector = Icons.Default.SubdirectoryArrowRight, contentDescription = "Dropset", tint = TextSecundario, modifier = Modifier.size(12.dp))
                                             Spacer(modifier = Modifier.width(4.dp))
-                                            Text(text = stringResource(R.string.aw_dropset, sLog.setIndex), fontSize = 11.sp, color = if(isCompleted) TextSecundario else Color.White, fontWeight = FontWeight.Bold)
+                                            Text(text = stringResource(R.string.aw_dropset, sLog.setIndex), style = AppTextStyle.statSmall.copy(color = if(isCompleted) TextSecundario else Color.White))
                                         } else {
-                                            Text(text = stringResource(R.string.aw_set_num, sLog.setIndex), fontSize = 12.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
+                                            Text(text = stringResource(R.string.aw_set_num, sLog.setIndex), style = AppTextStyle.statSmall.copy(color = TextSecundario))
                                         }
                                     }
                                 }
@@ -331,7 +303,7 @@ fun ActiveWorkoutScreen(
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                         singleLine = true,
                                         textStyle = LocalTextStyle.current.copy(
-                                            color = if(isCompleted) AccentGreen else Color.White,
+                                            color = if(isCompleted) AccentPrimary else Color.White,
                                             textAlign = TextAlign.Center,
                                             fontSize = 15.sp,
                                             fontWeight = if(isCompleted) FontWeight.Bold else FontWeight.Normal
@@ -364,7 +336,7 @@ fun ActiveWorkoutScreen(
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                         singleLine = true,
                                         textStyle = LocalTextStyle.current.copy(
-                                            color = if(isCompleted) AccentGreen else Color.White,
+                                            color = if(isCompleted) AccentPrimary else Color.White,
                                             textAlign = TextAlign.Center,
                                             fontSize = 15.sp,
                                             fontWeight = if(isCompleted) FontWeight.Bold else FontWeight.Normal
@@ -374,24 +346,34 @@ fun ActiveWorkoutScreen(
                                     )
                                 }
                                 
-                                // Checkbox
+                                // Checkbox (C5: haptic + animated checkmark)
+                                val checkboxBg by animateColorAsState(
+                                    targetValue = if (isCompleted) AccentPrimary else Color.Transparent,
+                                    animationSpec = tween(300),
+                                    label = "checkboxBg"
+                                )
                                 Box(
                                     modifier = Modifier
                                         .size(36.dp)
                                         .padding(end = 4.dp)
+                                        .background(checkboxBg, RoundedCornerShape(8.dp))
                                         .then(
-                                            if (isCompleted) {
-                                                Modifier.background(AccentGreen, RoundedCornerShape(8.dp)).clip(RoundedCornerShape(8.dp))
-                                            } else {
+                                            if (!isCompleted) {
                                                 Modifier.metricCellGlassModifier(RoundedCornerShape(8.dp))
+                                            } else {
+                                                Modifier
                                             }
                                         )
-                                        .clickable { viewModel.toggleSetComplete(sLog.id, safeContext) },
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .clickable {
+                                            if (!isCompleted) {
+                                                (safeContext as? Activity)?.window?.decorView?.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                                            }
+                                            viewModel.toggleSetComplete(sLog.id, safeContext)
+                                        },
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    if (isCompleted) {
-                                        Icon(imageVector = Icons.Default.Check, contentDescription = "Completado", tint = Color.White, modifier = Modifier.size(20.dp))
-                                    }
+                                    AnimatedCheckmark(visible = isCompleted)
                                 }
 
                                 // Delete Set Button
@@ -399,7 +381,7 @@ fun ActiveWorkoutScreen(
                                     onClick = { viewModel.deleteActiveSetLog(sLog.id) },
                                     modifier = Modifier.size(36.dp)
                                 ) {
-                                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Set", tint = TextSecundario, modifier = Modifier.size(14.dp))
+                                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete Set", tint = TextSecundario, modifier = Modifier.size(16.dp))
                                 }
                             }
 
@@ -414,7 +396,7 @@ fun ActiveWorkoutScreen(
                                     onClick = { viewModel.addActiveDropset(exName, setIndex) },
                                     contentPadding = PaddingValues(0.dp)
                                 ) {
-                                    Icon(imageVector = Icons.Default.Add, contentDescription = "Dropset", modifier = Modifier.size(10.dp), tint = TextSecundario)
+                                    Icon(imageVector = Icons.Default.Add, contentDescription = "Dropset", modifier = Modifier.size(12.dp), tint = TextSecundario)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(text = stringResource(R.string.aw_add_dropset), fontSize = 11.sp, color = TextSecundario)
                                 }
@@ -444,7 +426,7 @@ fun ActiveWorkoutScreen(
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Exercise", modifier = Modifier.size(16.dp))
+                            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Exercise", modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(text = stringResource(R.string.aw_add_alt_exercise), fontSize = 13.sp)
                         }
@@ -473,11 +455,40 @@ fun ActiveWorkoutScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = Color.White),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(text = stringResource(R.string.aw_finish_workout), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(text = stringResource(R.string.aw_finish_workout), style = AppTextStyle.titleOswald.copy(color = Color.White))
                     }
                 }
 
                 item { Spacer(modifier = Modifier.height(100.dp)) }
+            }
+
+            // Rest timer overlay — rendered after LazyColumn so it's on top
+            androidx.compose.animation.AnimatedVisibility(
+                visible = restTimerSeconds > 0,
+                modifier = Modifier.align(Alignment.TopCenter).padding(top = 16.dp),
+                enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically(),
+                exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.slideOutVertically()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .background(AccentPrimary, RoundedCornerShape(20.dp))
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .clickable { viewModel.adjustRestTimer(30) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(imageVector = Icons.Default.Timer, contentDescription = "Timer", tint = Color.White, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    val min = restTimerSeconds / 60
+                    val sec = restTimerSeconds % 60
+                    Text(
+                        text = String.format(java.util.Locale.US, "%02d:%02d", min, sec),
+                        style = AppTextStyle.statBig.copy(color = Color.White)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = stringResource(R.string.aw_plus_30s), color = Color.White.copy(alpha=0.7f), fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Cancel", tint = Color.White.copy(alpha=0.7f), modifier = Modifier.size(18.dp).clickable { viewModel.cancelRestTimer() })
+                }
             }
         }
 
@@ -568,22 +579,20 @@ fun ActiveWorkoutScreen(
                 ) {
                     Text(
                         text = stringResource(R.string.aw_new_exercise),
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        fontSize = 20.sp,
+                        style = AppTextStyle.headlineOswald.copy(color = Color.White),
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
 
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         
                         // Category Selector
-                        Text(text = "Músculo Principal *", fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
+                        Text(text = stringResource(R.string.plan_main_muscle), fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Bold)
                         ExposedDropdownMenuBox(
                             expanded = dropdownExpanded,
                             onExpandedChange = { dropdownExpanded = it },
                         ) {
                             OutlinedTextField(
-                                value = if (selectedMuscle.isNotEmpty()) getTranslatedCategory(selectedMuscle) else "Selecciona un músculo...",
+                                value = if (selectedMuscle.isNotEmpty()) getTranslatedCategory(selectedMuscle) else stringResource(R.string.plan_select_muscle),
                                 onValueChange = {},
                                 readOnly = true,
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = dropdownExpanded) },
@@ -594,8 +603,8 @@ fun ActiveWorkoutScreen(
                                     unfocusedTextColor = Color.White,
                                     focusedBorderColor = BorderColor,
                                     unfocusedBorderColor = BorderColor,
-                                    focusedContainerColor = Color(0x05FFFFFF),
-                                    unfocusedContainerColor = Color(0x05FFFFFF)
+                                    focusedContainerColor = SurfaceGlass,
+                                    unfocusedContainerColor = SurfaceGlass
                                 )
                             )
                             ExposedDropdownMenu(
@@ -718,7 +727,7 @@ fun ActiveWorkoutScreen(
                                 focusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                                 unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                                 cursorColor = Color.White
-                            , focusedContainerColor = Color(0x05FFFFFF), unfocusedContainerColor = Color(0x05FFFFFF))
+                            , focusedContainerColor = SurfaceGlass, unfocusedContainerColor = SurfaceGlass)
                         )
                     }
                     
@@ -779,4 +788,14 @@ fun ChronometerText(viewModel: FitnessViewModel) {
         color = TextSecundario,
         fontWeight = FontWeight.Medium
     )
+}
+
+@Composable
+private fun AnimatedCheckmark(visible: Boolean) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = scaleIn(initialScale = 0.5f, animationSpec = tween(300)) + fadeIn(animationSpec = tween(300))
+    ) {
+        Icon(imageVector = Icons.Default.Check, contentDescription = "Completado", tint = Color.White, modifier = Modifier.size(20.dp))
+    }
 }

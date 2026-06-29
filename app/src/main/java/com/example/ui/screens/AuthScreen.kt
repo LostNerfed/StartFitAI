@@ -5,18 +5,28 @@ import kotlinx.coroutines.launch
 import com.example.ui.theme.*
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -56,6 +66,24 @@ fun AuthScreen(
     var name by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
     var isLbs by remember { mutableStateOf(false) }
+    var isWeightLbs by remember { mutableStateOf(false) }
+    var isHeightFt by remember { mutableStateOf(false) }
+    
+    val heightCmItems = (100..250).map { "$it cm" }
+    val heightFtItems = mutableListOf<String>().apply {
+        for (f in 3..8) {
+            for (i in 0..11) {
+                add("${f}'${i}\"")
+            }
+        }
+    }
+    var currentHeightCmIndex by remember { mutableStateOf(heightCmItems.indexOf("170 cm")) }
+    var currentHeightFtIndex by remember { mutableStateOf(heightFtItems.indexOf("5'7\"")) }
+
+    val weightKgItems = (30..200).map { "$it kg" }
+    val weightLbItems = (60..450).map { "$it lbs" }
+    var currentWeightKgIndex by remember { mutableStateOf(weightKgItems.indexOf("70 kg")) }
+    var currentWeightLbIndex by remember { mutableStateOf(weightLbItems.indexOf("150 lbs")) }
     var gender by remember { mutableStateOf("Hombre") }
     var ageStr by remember { mutableStateOf("") }
     var heightStr by remember { mutableStateOf("") }
@@ -70,10 +98,10 @@ fun AuthScreen(
     var weightStr by remember { mutableStateOf("") }
     var targetCaloriesStr by remember { mutableStateOf("") }
     val goalsList = listOf(
-        "Hipertrofia / Ganar Músculo", 
-        "Pérdida de Grasa / Definición", 
-        "Fuerza y Rendimiento", 
-        "Mantenimiento / Salud General"
+        "Hipertrofia", 
+        "Pérdida de Grasa", 
+        "Fuerza", 
+        "Mantenimiento"
     )
     var selectedGoal by remember { mutableStateOf(goalsList[0]) }
 
@@ -85,10 +113,10 @@ fun AuthScreen(
         "Muy Activo (Doble turno o trabajo físico exigente)" to stringResource(R.string.activity_very_active)
     )
     val goalsMap = mapOf(
-        "Hipertrofia / Ganar Músculo" to stringResource(R.string.goal_hypertrophy),
-        "Pérdida de Grasa / Definición" to stringResource(R.string.goal_fatloss),
-        "Fuerza y Rendimiento" to stringResource(R.string.goal_strength),
-        "Mantenimiento / Salud General" to stringResource(R.string.goal_maintenance)
+        "Hipertrofia" to stringResource(R.string.goal_hypertrophy),
+        "Pérdida de Grasa" to stringResource(R.string.goal_fatloss),
+        "Fuerza" to stringResource(R.string.goal_strength),
+        "Mantenimiento" to stringResource(R.string.goal_maintenance)
     )
 
     LaunchedEffect(Unit) {
@@ -117,6 +145,7 @@ fun AuthScreen(
         error = null
     }
 
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -125,7 +154,15 @@ fun AuthScreen(
             .imePadding(),
         contentAlignment = Alignment.Center
     ) {
+        val animatedProgress by animateFloatAsState(targetValue = (step.toFloat() + 1f) / 6f, animationSpec = tween(500))
+        LinearProgressIndicator(
+            progress = { animatedProgress },
+            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(top = 16.dp).height(4.dp).clip(RoundedCornerShape(2.dp)),
+            color = Color.White,
+            trackColor = Color.White.copy(alpha = 0.2f)
+        )
         Column(
+
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
@@ -135,33 +172,12 @@ fun AuthScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             // Logo tipográfico
-            BoxWithConstraints(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                val screenWidth = maxWidth
-                val synergyFontSize = (screenWidth.value * 0.11f).coerceIn(24f, 44f).sp
-                val fitFontSize = (synergyFontSize.value * 0.48f).sp
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = stringResource(R.string.auth_synergy),
-                        fontFamily = com.example.ui.theme.PointlessFontFamily,
-                        fontSize = synergyFontSize,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        softWrap = false
-                    )
-                    Text(
-                        text = stringResource(R.string.auth_fit),
-                        fontFamily = com.example.ui.theme.PointlessFontFamily,
-                        fontSize = fitFontSize,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 4.dp, bottom = 32.dp)
-                    )
-                }
+            AnimatedVisibility(visible = step < 3) {
+                Image(
+                    painter = painterResource(id = R.drawable.start_fit_3),
+                    contentDescription = "StartFit AI Logo",
+                    modifier = Modifier.size(240.dp).padding(bottom = 24.dp)
+                )
             }
 
             AnimatedContent(
@@ -179,10 +195,12 @@ fun AuthScreen(
                     when (currentStep) {
                         0 -> {
                             // Step 0: Selección de idioma
-                            Image(
-                                painter = painterResource(id = R.drawable.start_fit_3),
-                                contentDescription = "StartFit AI Logo",
-                                modifier = Modifier.size(120.dp).padding(bottom = 24.dp)
+                            Text(
+                                text = stringResource(R.string.select_language),
+                                color = Color.White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 24.dp)
                             )
                             Spacer(modifier = Modifier.height(16.dp))
 
@@ -264,13 +282,7 @@ fun AuthScreen(
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
-                            Text(
-                                text = stringResource(R.string.auth_privacy_desc),
-                                color = TextSecundario,
-                                fontSize = 13.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(bottom = 32.dp)
-                            )
+
 
                             // BOTON DE INICIO DE SESIÓN CON GOOGLE
                             if (authState is AuthState.Loading || isCheckingProfile) {
@@ -397,107 +409,73 @@ fun AuthScreen(
                             }
                         }
                         3 -> {
-                            // Step 3: Unidades
-                            Text(stringResource(R.string.auth_step2_title), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 24.dp))
+                            // Step 3: Perfil Físico Completo (Género, Edad, Altura, Peso)
+                            Text("Perfil físico", style = AppTextStyle.headlineOswald.copy(color = Color.White), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp).offset(y = (-7).dp))
+                            
+                            // Género
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .then(
-                                            if (!isLbs) Modifier
-                                                .background(Color.White.copy(alpha = 0.97f), RoundedCornerShape(8.dp))
-                                                .clip(RoundedCornerShape(8.dp))
-                                            else Modifier
-                                                .liquidGlassModifier(RoundedCornerShape(8.dp))
-                                        )
-                                        .clickable { isLbs = false }
-                                        .padding(vertical = 16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(stringResource(R.string.auth_metric), color = if (!isLbs) Color.Black else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(165.dp)
+                                            .then(
+                                                if (gender == "Hombre") Modifier
+                                                    .background(Color.White.copy(alpha = 0.97f), CircleShape)
+                                                    .clip(CircleShape)
+                                                else Modifier
+                                                    .liquidGlassModifier(CircleShape)
+                                            )
+                                            .clickable { gender = "Hombre" },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.male),
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .size(72.dp)
+                                                    .clip(CircleShape)
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(stringResource(R.string.auth_gender_m), style = AppTextStyle.statSmall.copy(color = if (gender == "Hombre") Color.Black else Color.White))
+                                        }
+                                    }
                                 }
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .then(
-                                            if (isLbs) Modifier
-                                                .background(Color.White.copy(alpha = 0.97f), RoundedCornerShape(8.dp))
-                                                .clip(RoundedCornerShape(8.dp))
-                                            else Modifier
-                                                .liquidGlassModifier(RoundedCornerShape(8.dp))
-                                        )
-                                        .clickable { isLbs = true }
-                                        .padding(vertical = 16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(stringResource(R.string.auth_imperial), color = if (isLbs) Color.Black else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(165.dp)
+                                            .then(
+                                                if (gender == "Mujer") Modifier
+                                                    .background(Color.White.copy(alpha = 0.97f), CircleShape)
+                                                    .clip(CircleShape)
+                                                else Modifier
+                                                    .liquidGlassModifier(CircleShape)
+                                            )
+                                            .clickable { gender = "Mujer" },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.female),
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .size(72.dp)
+                                                    .clip(CircleShape)
+                                            )
+                                            Spacer(modifier = Modifier.height(4.dp))
+                                            Text(stringResource(R.string.auth_gender_f), style = AppTextStyle.statSmall.copy(color = if (gender == "Mujer") Color.Black else Color.White))
+                                        }
+                                    }
                                 }
                             }
                             
-                            Spacer(modifier = Modifier.height(32.dp))
-
-                            Button(
-                                onClick = { step = 4 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                                    .supercardGlassModifier(RoundedCornerShape(12.dp)),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Transparent,
-                                    contentColor = Color.White
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            }
-                        }
-                        4 -> {
-                            // Step 4: Género & Edad
-                            Text(stringResource(R.string.settings_profile), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 24.dp))
+                            Spacer(modifier = Modifier.height(24.dp))
                             
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .then(
-                                            if (gender == "Hombre") Modifier
-                                                .background(Color.White.copy(alpha = 0.97f), RoundedCornerShape(8.dp))
-                                                .clip(RoundedCornerShape(8.dp))
-                                            else Modifier
-                                                .liquidGlassModifier(RoundedCornerShape(8.dp))
-                                        )
-                                        .clickable { gender = "Hombre" }
-                                        .padding(vertical = 12.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(stringResource(R.string.auth_gender_m), color = if (gender == "Hombre") Color.Black else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .then(
-                                            if (gender == "Mujer") Modifier
-                                                .background(Color.White.copy(alpha = 0.97f), RoundedCornerShape(8.dp))
-                                                .clip(RoundedCornerShape(8.dp))
-                                            else Modifier
-                                                .liquidGlassModifier(RoundedCornerShape(8.dp))
-                                        )
-                                        .clickable { gender = "Mujer" }
-                                        .padding(vertical = 12.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(stringResource(R.string.auth_gender_f), color = if (gender == "Mujer") Color.Black else Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
+                            // Edad
                             OutlinedTextField(
                                 value = ageStr,
                                 onValueChange = { 
@@ -517,12 +495,98 @@ fun AuthScreen(
                                 shape = RoundedCornerShape(12.dp)
                             )
                             
+                            Spacer(modifier = Modifier.height(24.dp))
+                            
+                            // Altura
+                            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text("Altura", color = Color.White, style = AppTextStyle.statBig, modifier = Modifier.weight(1f))
+                                Row(
+                                    modifier = Modifier.background(Color.White.copy(alpha=0.1f), RoundedCornerShape(20.dp)).padding(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(modifier = Modifier.clip(RoundedCornerShape(16.dp)).clickable { 
+                                        if (isHeightFt) {
+                                            val parts = heightFtItems[currentHeightFtIndex].split("'")
+                                            val f = parts[0].toDoubleOrNull() ?: 0.0
+                                            val i = parts.getOrNull(1)?.replace("\"", "")?.trim()?.toDoubleOrNull() ?: 0.0
+                                            val cm = (f * 30.48) + (i * 2.54)
+                                            val roundedCm = Math.round(cm).toInt()
+                                            currentHeightCmIndex = heightCmItems.indexOfFirst { it == "$roundedCm cm" }.takeIf { it >= 0 } ?: 0
+                                            isHeightFt = false 
+                                        }
+                                    }.background(if (!isHeightFt) Color.White else Color.Transparent).padding(horizontal = 12.dp, vertical = 6.dp)) {
+                                        Text("CM", color = if (!isHeightFt) Color.Black else Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                    Box(modifier = Modifier.clip(RoundedCornerShape(16.dp)).clickable { 
+                                        if (!isHeightFt) {
+                                            val cm = heightCmItems[currentHeightCmIndex].replace(" cm", "").toDoubleOrNull() ?: 0.0
+                                            val totalInches = cm / 2.54
+                                            val f = Math.floor(totalInches / 12).toInt()
+                                            val i = Math.round(totalInches % 12).toInt()
+                                            val finalF = if (i == 12) f + 1 else f
+                                            val finalI = if (i == 12) 0 else i
+                                            val ftStr = "${finalF}'${finalI}\""
+                                            currentHeightFtIndex = heightFtItems.indexOfFirst { it == ftStr }.takeIf { it >= 0 } ?: 0
+                                            isHeightFt = true 
+                                        }
+                                    }.background(if (isHeightFt) Color.White else Color.Transparent).padding(horizontal = 12.dp, vertical = 6.dp)) {
+                                        Text("FT", color = if (isHeightFt) Color.Black else Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (isHeightFt) {
+                                WheelPicker(items = heightFtItems, selectedIndex = currentHeightFtIndex, onIndexChanged = { currentHeightFtIndex = it })
+                            } else {
+                                WheelPicker(items = heightCmItems, selectedIndex = currentHeightCmIndex, onIndexChanged = { currentHeightCmIndex = it })
+                            }
+                            
+                            Spacer(modifier = Modifier.height(24.dp))
+                            
+                            // Peso
+                            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text("Peso", color = Color.White, style = AppTextStyle.statBig, modifier = Modifier.weight(1f))
+                                Row(
+                                    modifier = Modifier.background(Color.White.copy(alpha=0.1f), RoundedCornerShape(20.dp)).padding(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(modifier = Modifier.clip(RoundedCornerShape(16.dp)).clickable { 
+                                        if (isWeightLbs) {
+                                            val currentLbs = weightLbItems[currentWeightLbIndex].replace(" lbs", "").toDoubleOrNull() ?: 0.0
+                                            val kg = currentLbs / 2.20462
+                                            val roundedKg = Math.round(kg).toInt()
+                                            currentWeightKgIndex = weightKgItems.indexOfFirst { it == "$roundedKg kg" }.takeIf { it >= 0 } ?: 0
+                                            isWeightLbs = false
+                                        }
+                                    }.background(if (!isWeightLbs) Color.White else Color.Transparent).padding(horizontal = 12.dp, vertical = 6.dp)) {
+                                        Text("KG", color = if (!isWeightLbs) Color.Black else Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                    Box(modifier = Modifier.clip(RoundedCornerShape(16.dp)).clickable { 
+                                        if (!isWeightLbs) {
+                                            val currentKg = weightKgItems[currentWeightKgIndex].replace(" kg", "").toDoubleOrNull() ?: 0.0
+                                            val lbs = currentKg * 2.20462
+                                            val roundedLbs = Math.round(lbs).toInt()
+                                            currentWeightLbIndex = weightLbItems.indexOfFirst { it == "$roundedLbs lbs" }.takeIf { it >= 0 } ?: 0
+                                            isWeightLbs = true
+                                        }
+                                    }.background(if (isWeightLbs) Color.White else Color.Transparent).padding(horizontal = 12.dp, vertical = 6.dp)) {
+                                        Text("LB", color = if (isWeightLbs) Color.Black else Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            if (isWeightLbs) {
+                                WheelPicker(items = weightLbItems, selectedIndex = currentWeightLbIndex, onIndexChanged = { currentWeightLbIndex = it })
+                            } else {
+                                WheelPicker(items = weightKgItems, selectedIndex = currentWeightKgIndex, onIndexChanged = { currentWeightKgIndex = it })
+                            }
+
                             AnimatedVisibility(visible = error != null) {
                                 Text(
                                     text = error ?: "",
                                     color = Color.Red,
                                     fontSize = 12.sp,
-                                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                                    modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
                                 )
                             }
 
@@ -535,7 +599,7 @@ fun AuthScreen(
                                         error = context.getString(R.string.auth_err_age)
                                     } else {
                                         error = null
-                                        step = 5
+                                        step = 4
                                     }
                                 },
                                 modifier = Modifier
@@ -548,153 +612,10 @@ fun AuthScreen(
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
-                                Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                Text(stringResource(R.string.btn_next), style = AppTextStyle.titleOswald.copy(color = Color.White))
                             }
                         }
-                        5 -> {
-                            // Step 5: Talla & Peso
-                            Text(stringResource(R.string.settings_measurements), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 24.dp))
-                            
-                            OutlinedTextField(
-                                value = heightStr,
-                                onValueChange = { 
-                                    heightStr = it.filter { char -> char.isDigit() || char == '.' }.take(5) 
-                                    error = null
-                                },
-                                placeholder = { Text(if (isLbs) stringResource(R.string.auth_height_in_ph) else stringResource(R.string.auth_height_cm_ph), color = TextSecundario, fontSize = 14.sp) },
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp)),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-                                    focusedBorderColor = Color.Transparent, unfocusedBorderColor = Color.Transparent,
-                                    cursorColor = Color.White,
-                                    focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            OutlinedTextField(
-                                value = weightStr,
-                                onValueChange = { 
-                                    weightStr = it.filter { char -> char.isDigit() || char == '.' }.take(5) 
-                                    error = null
-                                },
-                                placeholder = { Text(if (isLbs) stringResource(R.string.auth_weight_lbs_ph) else stringResource(R.string.auth_weight_kg_ph), color = TextSecundario, fontSize = 14.sp) },
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier.fillMaxWidth().liquidGlassModifier(RoundedCornerShape(12.dp)),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-                                    focusedBorderColor = Color.Transparent, unfocusedBorderColor = Color.Transparent,
-                                    cursorColor = Color.White,
-                                    focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            Text(
-                                text = "Podrás cambiar entre Kilos/Libras y Centímetros/Pulgadas más adelante en los Ajustes.",
-                                color = TextSecundario,
-                                fontSize = 11.sp,
-                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
-                                textAlign = TextAlign.Center
-                            )
-                            
-                            AnimatedVisibility(visible = error != null) {
-                                Text(
-                                    text = error ?: "",
-                                    color = Color.Red,
-                                    fontSize = 12.sp,
-                                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.height(32.dp))
-
-                            Button(
-                                onClick = { 
-                                    val heightDouble = heightStr.toDoubleOrNull() ?: 0.0
-                                    val weightDouble = weightStr.toDoubleOrNull() ?: 0.0
-                                    
-                                    val validHeight = if (isLbs) heightDouble > 20.0 && heightDouble < 100.0 else heightDouble > 50.0 && heightDouble <= 250.0
-                                    
-                                    if (!validHeight) {
-                                        error = context.getString(R.string.auth_err_height)
-                                    } else if (weightDouble <= 20.0 || weightDouble > 300.0) {
-                                        error = context.getString(R.string.auth_err_weight)
-                                    } else {
-                                        error = null
-                                        step = 6
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                                    .supercardGlassModifier(RoundedCornerShape(12.dp)),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Transparent,
-                                    contentColor = Color.White
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            }
-                        }
-                        6 -> {
-                            // Step 6: Nivel de actividad
-                            Text(stringResource(R.string.auth_step5_title), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 24.dp))
-                            
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                activityOptions.forEach { option ->
-                                    val isSelected = option == activityLevel
-                                    val displayText = activityOptionsMap[option] ?: option
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .then(
-                                                if (isSelected) Modifier
-                                                    .background(Color.White.copy(alpha = 0.97f), RoundedCornerShape(8.dp))
-                                                    .clip(RoundedCornerShape(8.dp))
-                                                else Modifier
-                                                    .liquidGlassModifier(RoundedCornerShape(8.dp))
-                                            )
-                                            .clickable { activityLevel = option }
-                                            .padding(vertical = 16.dp, horizontal = 16.dp),
-                                        contentAlignment = Alignment.CenterStart
-                                    ) {
-                                        Text(
-                                            text = displayText,
-                                            color = if (isSelected) Color.Black else Color.White,
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                    }
-                                }
-                            }
-                            
-                            Spacer(modifier = Modifier.height(32.dp))
-
-                            Button(
-                                onClick = { step = 7 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                                    .supercardGlassModifier(RoundedCornerShape(12.dp)),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Transparent,
-                                    contentColor = Color.White
-                                ),
-                                shape = RoundedCornerShape(12.dp)
-                            ) {
-                                Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            }
-                        }
-                        7 -> {
+                        4 -> {
                             // Step 7: Objetivo de fitness
                             Text(stringResource(R.string.auth_step6_title), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 24.dp))
                             
@@ -731,7 +652,7 @@ fun AuthScreen(
                             Spacer(modifier = Modifier.height(32.dp))
 
                             Button(
-                                onClick = { step = 8 },
+                                onClick = { step = 5 },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(56.dp)
@@ -745,7 +666,7 @@ fun AuthScreen(
                                 Text(stringResource(R.string.btn_next), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             }
                         }
-                        8 -> {
+                        5 -> {
                             // Step 8: Calorías objetivo + finalizar
                             Text(stringResource(R.string.auth_step7_title), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 24.dp))
                             
@@ -814,8 +735,27 @@ fun AuthScreen(
                                     } else {
                                         error = null
                                         val ageInt = ageStr.toIntOrNull() ?: 0
-                                        val heightDouble = heightStr.toDoubleOrNull() ?: 0.0
-                                        val weightDouble = weightStr.toDoubleOrNull() ?: 0.0
+                                        
+                                        val hDouble = if (isHeightFt) {
+                                            val parts = heightFtItems[currentHeightFtIndex].split("'")
+                                            val f = parts[0].toDoubleOrNull() ?: 0.0
+                                            val i = parts.getOrNull(1)?.replace("\"", "")?.trim()?.toDoubleOrNull() ?: 0.0
+                                            val inches = (f * 12) + i
+                                            if (isWeightLbs) inches else inches * 2.54
+                                        } else {
+                                            val cm = heightCmItems[currentHeightCmIndex].replace(" cm", "").toDoubleOrNull() ?: 0.0
+                                            if (isWeightLbs) cm / 2.54 else cm
+                                        }
+
+                                        val wDouble = if (isWeightLbs) {
+                                            weightLbItems[currentWeightLbIndex].replace(" lbs", "").toDoubleOrNull() ?: 0.0
+                                        } else {
+                                            weightKgItems[currentWeightKgIndex].replace(" kg", "").toDoubleOrNull() ?: 0.0
+                                        }
+                                        
+                                        val heightDouble = hDouble
+                                        val weightDouble = wDouble
+                                        isLbs = isWeightLbs // Synced!
                                         
                                         var finalTargetCals = targetCals
                                         if (finalTargetCals == 0 && ageInt > 0 && heightDouble > 0.0 && weightDouble > 0.0) {
@@ -859,5 +799,127 @@ fun AuthScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun WheelPicker(
+    items: List<String>,
+    selectedIndex: Int,
+    onIndexChanged: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val itemWidth = 90.dp
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxOf(0, selectedIndex))
+    val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(listState.isScrollInProgress, listState.firstVisibleItemIndex) {
+        if (listState.isScrollInProgress) return@LaunchedEffect
+        
+        val layoutInfo = listState.layoutInfo
+        val unpaddedCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2f
+        val centerItem = layoutInfo.visibleItemsInfo.minByOrNull {
+            val itemCenter = it.offset + (it.size / 2f)
+            kotlin.math.abs(itemCenter - unpaddedCenter)
+        }?.index
+        
+        if (centerItem != null && centerItem in items.indices) {
+            if (selectedIndex != centerItem) {
+                onIndexChanged(centerItem)
+            }
+        }
+    }
+
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val containerWidth = screenWidth - 48.dp
+    val horizontalPadding = (containerWidth - itemWidth) / 2
+
+    Box(modifier = modifier.height(110.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
+        androidx.compose.foundation.lazy.LazyRow(
+            state = listState,
+            flingBehavior = flingBehavior,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = maxOf(0.dp, horizontalPadding)),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            items(items.size) { index ->
+                val isSelected = index == selectedIndex
+
+                Box(
+                    modifier = Modifier
+                        .width(itemWidth)
+                        .fillMaxHeight()
+                        .clickable(
+                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            coroutineScope.launch {
+                                listState.animateScrollToItem(index)
+                            }
+                        },
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        androidx.compose.material3.Text(
+                            text = items[index],
+                            fontSize = androidx.compose.ui.unit.TextUnit(20f, androidx.compose.ui.unit.TextUnitType.Sp),
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            color = Color.White,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).graphicsLayer {
+                                val layoutInfo = listState.layoutInfo
+                                val unpaddedCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2f
+                                val itemInfo = layoutInfo.visibleItemsInfo.find { it.index == index }
+                                if (itemInfo != null) {
+                                    val itemCenter = itemInfo.offset + (itemInfo.size / 2f)
+                                    val distance = kotlin.math.abs(itemCenter - unpaddedCenter)
+                                    val maxDistance = itemInfo.size.toFloat() * 1.5f
+                                    val fraction = 1f - (distance / maxDistance).coerceIn(0f, 1f)
+                                    
+                                    scaleX = 0.85f + (fraction * 0.45f)
+                                    scaleY = 0.85f + (fraction * 0.45f)
+                                    alpha = 0.35f + (fraction * 0.65f)
+                                    translationY = -(fraction * 36f)
+                                } else {
+                                    scaleX = 0.85f
+                                    scaleY = 0.85f
+                                    alpha = 0.35f
+                                }
+                            }
+                        )
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth().height(36.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Box(modifier = Modifier.width(2.dp).height(12.dp).background(Color.White.copy(alpha=0.3f)))
+                            Spacer(modifier = Modifier.weight(1f))
+                            Box(modifier = Modifier.width(2.dp).height(16.dp).background(Color.White.copy(alpha=0.3f)))
+                            Spacer(modifier = Modifier.weight(1f))
+                            Box(modifier = Modifier.width(2.dp).height(24.dp).background(Color.White.copy(alpha=0.5f), RoundedCornerShape(1.dp)))
+                            Spacer(modifier = Modifier.weight(1f))
+                            Box(modifier = Modifier.width(2.dp).height(16.dp).background(Color.White.copy(alpha=0.3f)))
+                            Spacer(modifier = Modifier.weight(1f))
+                            Box(modifier = Modifier.width(2.dp).height(12.dp).background(Color.White.copy(alpha=0.3f)))
+                        }
+                    }
+                }
+            }
+        }
+        
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .width(4.dp)
+                .height(44.dp)
+                .background(Color(0xFF00C2FF), RoundedCornerShape(2.dp))
+        )
     }
 }

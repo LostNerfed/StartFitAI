@@ -97,13 +97,11 @@
     <string name="plan_my_routines">Minhas Rotinas</string>
     <string name="plan_exercise_list">Lista de Exercícios</string>
     <string name="plan_your_routines">Suas Rotinas</string>
-    <string name="plan_templates_subtitle">Modelos de treino programados</string>
     <string name="plan_import_routines">Importar Rotinas</string>
     <string name="plan_export_routines">Exportar Rotinas</string>
     <string name="plan_no_routines">Você não tem rotinas programadas.
 Crie seu primeiro modelo de dia acima.</string>
     <string name="plan_exercises_title">Exercícios</string>
-    <string name="plan_exercises_subtitle">Seus exercícios salvos para usar</string>
     <string name="plan_new_exercise">Novo Exercício</string>
     <string name="plan_upper_body_section">PARTE SUPERIOR (Tronco / Braços)</string>
     <string name="plan_lower_body_section">PARTE INFERIOR (Pernas / Abdômen)</string>
@@ -376,4 +374,23 @@ Crie seu primeiro modelo de dia acima.</string>
     <string name="cat_triceps">Tríceps</string>
     <string name="cat_forearms">Antebraços</string>
     <string name="cat_others">Outros</string>
+
+    
+    <string name="auth_searching_profile_cloud">Procurando seu perfil na nuvem...</string>
+    <string name="auth_google_session_started">Sessão do Google iniciada! Configurando seu perfil...</string>
+    <string name="auth_continue_google">Continuar com Google</string>
+    <string name="auth_anonymous_user">Usuário anônimo</string>
+    <string name="home_weight_history">Histórico de Peso</string>
+    <string name="home_clear">Limpar</string>
+    <string name="home_weight_unit">kg</string>
+    <string name="home_coach_ai_history">Histórico Coach IA</string>
+    <string name="home_new_chat">Novo Chat</string>
+    <string name="home_no_chat_history">Sem histórico de chats.</string>
+    <string name="prog_accumulated_volume">Volume Acumulado</string>
+    <string name="plan_main_muscle">Músculo Principal *</string>
+    <string name="plan_select_muscle">Selecione um músculo...</string>
+    <string name="plan_add_exercises_optional">Adicionar exercícios à rotina (Opcional)</string>
+    <string name="aw_plus_30s">+30s</string>
+    <string name="meal_analyzing">Analisando...</string>
+    <string name="meal_analyze">Analisar</string>
 </resources>

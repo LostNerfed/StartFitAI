@@ -23,11 +23,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 private val DarkColorScheme = darkColorScheme(
-    primary = MonoPrimary,
+    primary = AccentPrimary,
     onPrimary = Color.Black,
-    secondary = MonoSecondary,
-    onSecondary = Color.White,
-    tertiary = MonoTertiary,
+    secondary = TextSecundario,
+    onSecondary = Color.Black,
+    tertiary = AccentPurple,
     onTertiary = Color.White,
     background = AmoledBg,
     onBackground = TextPrincipal,
@@ -64,7 +64,7 @@ fun Modifier.metricCellGlassModifier(
     shape: Shape = RoundedCornerShape(18.dp)
 ): Modifier = this
     .clip(shape)
-    .background(Color(0xFF1C1C1E))
+    .background(SurfaceDark)
 
 fun Modifier.liquidGlassModifier(
     shape: Shape = RoundedCornerShape(20.dp)

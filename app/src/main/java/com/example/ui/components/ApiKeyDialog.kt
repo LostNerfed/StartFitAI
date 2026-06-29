@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.R
 import com.example.ui.theme.*
+import com.example.ui.theme.AppTextStyle
 
 @Composable
 fun ApiKeyDialog(
@@ -31,9 +32,7 @@ fun ApiKeyDialog(
         title = {
             Text(
                 text = stringResource(R.string.api_dialog_title),
-                color = Color.White,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                style = AppTextStyle.headlineOswald.copy(color = Color.White)
             )
         },
         text = {

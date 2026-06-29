@@ -315,13 +315,11 @@
     <string name="plan_my_routines">My Routines</string>
     <string name="plan_exercise_list">Exercise List</string>
     <string name="plan_your_routines">Your Routines</string>
-    <string name="plan_templates_subtitle">Scheduled workout templates</string>
     <string name="plan_import_routines">Import Routines</string>
     <string name="plan_export_routines">Export Routines</string>
     <string name="plan_no_routines">You have no scheduled routines.
 Create your first template above.</string>
     <string name="plan_exercises_title">Exercises</string>
-    <string name="plan_exercises_subtitle">Your saved exercises to use</string>
     <string name="plan_new_exercise">New Exercise</string>
     <string name="plan_upper_body_section">UPPER BODY (Chest / Arms)</string>
     <string name="plan_lower_body_section">LOWER BODY (Legs / Core)</string>
@@ -397,4 +395,23 @@ Create your first template above.</string>
     <string name="cat_triceps">Triceps</string>
     <string name="cat_forearms">Forearms</string>
     <string name="cat_others">Other</string>
+
+    
+    <string name="auth_searching_profile_cloud">Searching for your profile in the cloud...</string>
+    <string name="auth_google_session_started">Google session started! Setting up your profile...</string>
+    <string name="auth_continue_google">Continue with Google</string>
+    <string name="auth_anonymous_user">Anonymous user</string>
+    <string name="home_weight_history">Weight History</string>
+    <string name="home_clear">Clear</string>
+    <string name="home_weight_unit">kg</string>
+    <string name="home_coach_ai_history">AI Coach History</string>
+    <string name="home_new_chat">New Chat</string>
+    <string name="home_no_chat_history">No chat history.</string>
+    <string name="prog_accumulated_volume">Accumulated Volume</string>
+    <string name="plan_main_muscle">Main Muscle *</string>
+    <string name="plan_select_muscle">Select a muscle...</string>
+    <string name="plan_add_exercises_optional">Add exercises to routine (Optional)</string>
+    <string name="aw_plus_30s">+30s</string>
+    <string name="meal_analyzing">Analyzing...</string>
+    <string name="meal_analyze">Analyze</string>
 </resources>

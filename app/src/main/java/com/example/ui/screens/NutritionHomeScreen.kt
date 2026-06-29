@@ -18,6 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.database.Meal
 import com.example.ui.FitnessViewModel
 import com.example.ui.theme.*
+import com.example.ui.theme.AppTextStyle
 import java.text.SimpleDateFormat
 import java.util.*
 import com.example.ui.components.ApiKeyDialog
@@ -70,8 +73,8 @@ fun NutritionHomeScreen(
     }
 
     // Collapsible state for sections
-    var showMealForm by remember { mutableStateOf(false) }
-    var showMealHistory by remember { mutableStateOf(false) }
+    
+    
     var showWeeklyChart by remember { mutableStateOf(false) }
     var showApiDialog by remember { mutableStateOf(false) }
 
@@ -105,9 +108,7 @@ fun NutritionHomeScreen(
         ) {
             Text(
                 text = stringResource(R.string.nut_diary),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+                style = AppTextStyle.headlineOswald.copy(color = Color.White)
             )
             IconButton(
                 onClick = { viewModel.selectDate(getFormattedToday()) },
@@ -118,8 +119,8 @@ fun NutritionHomeScreen(
                 Icon(
                     imageVector = Icons.Default.Today,
                     contentDescription = "Today",
-                    tint = AccentGreen,
-                    modifier = Modifier.size(16.dp)
+                    tint = AccentPrimary,
+                    modifier = Modifier.size(18.dp)
                 )
             }
         }
@@ -156,9 +157,7 @@ fun NutritionHomeScreen(
                     Text(text = stringResource(R.string.nut_consumed_today), fontSize = 12.sp, color = TextSecundario)
                     Text(
                         text = "$totalCalories kcal",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        style = AppTextStyle.numberMedium.copy(color = Color.White)
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
@@ -168,12 +167,6 @@ fun NutritionHomeScreen(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color.White
-                    )
-                    Text(
-                        text = stringResource(R.string.nut_maintenance, maintenanceCalories),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = AccentGreen
                     )
                 }
             }
@@ -191,7 +184,7 @@ fun NutritionHomeScreen(
                 strokeCap = StrokeCap.Round
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Detail of Proteínas, Carbohidratos y Grasas linear progress bars
             Row(
@@ -203,6 +196,7 @@ fun NutritionHomeScreen(
                     amount = "${totalProtein.toInt()}g",
                     target = "${settings.targetProtein}g",
                     ratio = proteinFraction,
+                    color = MacroProtein,
                     modifier = Modifier.weight(1f)
                 )
                 MacroProgressWidget(
@@ -210,6 +204,7 @@ fun NutritionHomeScreen(
                     amount = "${totalCarbs.toInt()}g",
                     target = "${settings.targetCarbs}g",
                     ratio = carbsFraction,
+                    color = MacroCarbs,
                     modifier = Modifier.weight(1f)
                 )
                 MacroProgressWidget(
@@ -217,12 +212,42 @@ fun NutritionHomeScreen(
                     amount = "${totalFat.toInt()}g",
                     target = "${settings.targetFat}g",
                     ratio = fatFraction,
+                    color = MacroFat,
                     modifier = Modifier.weight(1f)
                 )
             }
         }
 
-        // ── Consumo Semanal (always visible) ──
+        
+
+        
+
+                // ── Registro Nativo (Unified Meal Card) ──
+        UnifiedMealCard(
+            meals = meals,
+            mealFoodsMap = mealFoodsMap,
+            selectedDate = selectedDate,
+            mealAnalysisLoading = mealAnalysisLoading,
+            onLogMeal = { category, description ->
+                viewModel.logMealFromNaturalLanguage(category, description, selectedDate) { success -> }
+            },
+            onDeleteMeal = { mealId -> viewModel.deleteMeal(mealId) },
+            showHistory = false
+        )
+
+        // ── Historial de Comidas de Hoy ──
+        Text(
+            text = stringResource(R.string.nut_meals_today),
+            style = AppTextStyle.statBig.copy(color = Color.White),
+            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp, start = 4.dp)
+        )
+        MealHistoryContent(
+            meals = meals,
+            mealFoodsMap = mealFoodsMap,
+            onDeleteMeal = { mealId -> viewModel.deleteMeal(mealId) }
+        )
+
+// ── Consumo Semanal (always visible) ──
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -234,140 +259,21 @@ fun NutritionHomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.BarChart,
+                    imageVector = Icons.Outlined.BarChart,
                     contentDescription = "Semanal",
                     tint = AccentAmber,
                     modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = stringResource(R.string.nut_weekly_consumption),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    style = AppTextStyle.statBig.copy(color = Color.White)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
             WeeklyNutritionBarChart(weeklyCaloriesMap)
         }
-        // ── Registrar alimento (collapsible button) ──
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
-        ) {
-            // Trigger button
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .supercardGlassModifier(RoundedCornerShape(12.dp))
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable { showMealForm = true }
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AddCircleOutline,
-                    contentDescription = "Agregar",
-                    tint = AccentGreen,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = stringResource(R.string.nut_log_food),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.weight(1f))
-            }
-
-            // Centered Dialog for Meal Form
-            if (showMealForm) {
-                androidx.compose.ui.window.Dialog(
-                    onDismissRequest = { showMealForm = false },
-                    properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                    ) {
-                        UnifiedMealCard(
-                            meals = meals,
-                            mealFoodsMap = mealFoodsMap,
-                            selectedDate = selectedDate,
-                            mealAnalysisLoading = mealAnalysisLoading,
-                            onLogMeal = { category, description ->
-                                viewModel.logMealFromNaturalLanguage(category, description, selectedDate) { success ->
-                                        if (success) showMealForm = false
-                                    }
-                            },
-                            onDeleteMeal = { mealId -> viewModel.deleteMeal(mealId) },
-                            showHistory = false
-                        )
-                    }
-                }
-            }
-        }
-
-        // ── Historial de comidas (collapsible) ──
-        val totalMeals = meals.size
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .supercardGlassModifier(RoundedCornerShape(12.dp))
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable { showMealHistory = !showMealHistory }
-                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.RestaurantMenu,
-                    contentDescription = "Historial",
-                    tint = if (showMealHistory) Color.White else TextSecundario,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = stringResource(R.string.nut_meals_today),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (showMealHistory) Color.White else TextSecundario,
-                    modifier = Modifier.weight(1f)
-                )
-                if (totalMeals > 0) {
-                    Text(
-                        text = stringResource(R.string.nut_records_count, totalMeals),
-                        fontSize = 11.sp,
-                        color = TextSecundario
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Icon(
-                    imageVector = if (showMealHistory) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null,
-                    tint = TextSecundario,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-
-            AnimatedVisibility(visible = showMealHistory) {
-                Box(modifier = Modifier.padding(top = 8.dp)) {
-                    MealHistoryContent(
-                        meals = meals,
-                        mealFoodsMap = mealFoodsMap,
-                        onDeleteMeal = { mealId -> viewModel.deleteMeal(mealId) }
-                    )
-                }
-            }
-        }
-
+        
         Spacer(modifier = Modifier.height(100.dp))
 
         if (showApiDialog) {
@@ -385,15 +291,16 @@ fun MacroProgressWidget(
     amount: String,
     target: String,
     ratio: Float,
+    color: Color,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(vertical = 4.dp, horizontal = 2.dp)
+        modifier = modifier.padding(vertical = 4.dp, horizontal = 4.dp)
     ) {
                 Text(text = title, fontSize = 11.sp, color = TextSecundario, fontWeight = FontWeight.Medium)
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(text = amount, fontSize = 13.sp, color = Color.White, fontWeight = FontWeight.Bold)
+            Text(text = amount, fontSize = 13.sp, color = color, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.width(4.dp))
             Text(text = stringResource(R.string.nut_of_target, target), fontSize = 10.sp, color = TextSecundario, modifier = Modifier.padding(bottom = 1.dp))
         }
@@ -403,7 +310,7 @@ fun MacroProgressWidget(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(4.dp),
-            color = Color.White,
+            color = color,
             trackColor = ProgressTrackColor,
             strokeCap = StrokeCap.Round
         )
@@ -429,7 +336,7 @@ fun HorizontalDatePicker(
     LazyRow(
         state = listState,
         modifier = Modifier.fillMaxWidth().testTag("horizontal_date_picker"),
-        horizontalArrangement = Arrangement.spacedBy(10.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(dates) { item ->
             val isSelected = item.dateString == selectedDate
@@ -460,9 +367,7 @@ fun HorizontalDatePicker(
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = item.dayNumber,
-                        color = if (isSelected) Color.Black else Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        style = AppTextStyle.titleOswald.copy(color = if (isSelected) Color.Black else Color.White)
                     )
                 }
             }
@@ -518,7 +423,7 @@ fun WeeklyNutritionBarChart(weeklyCaloriesMap: Map<String, Int>) {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     text = displayDay,
@@ -554,6 +459,7 @@ fun UnifiedMealCard(
 
     var selectedCategory by remember { mutableStateOf("Desayuno") }
     var descriptionInput by remember { mutableStateOf("") }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     // Group meals by category for display
     val mealsByCategory = categories.associateWith { cat -> meals.filter { it.category == cat } }
@@ -568,9 +474,7 @@ fun UnifiedMealCard(
         // Title
         Text(
             text = stringResource(R.string.nut_log_food_title),
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
+            style = AppTextStyle.statBig.copy(color = Color.White)
         )
 
         // Category chip selector
@@ -621,25 +525,26 @@ fun UnifiedMealCard(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
                 .testTag("unified_meal_input"),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedBorderColor = androidx.compose.ui.graphics.Color.White,
-                unfocusedBorderColor = androidx.compose.ui.graphics.Color.White,
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
                 cursorColor = Color.White,
-                focusedContainerColor = Color(0x05FFFFFF),
-                unfocusedContainerColor = Color(0x05FFFFFF)),
+                focusedContainerColor = Color.White.copy(alpha = 0.08f),
+                unfocusedContainerColor = Color.White.copy(alpha = 0.08f)),
             shape = RoundedCornerShape(12.dp),
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-            maxLines = 4
+            minLines = 1,
+            maxLines = 3
         )
 
         // AI analyze button
         Button(
             onClick = {
                 if (descriptionInput.trim().isNotEmpty()) {
+                    keyboardController?.hide()
                     onLogMeal(selectedCategory, descriptionInput.trim())
                     descriptionInput = ""
                 }
@@ -651,7 +556,7 @@ fun UnifiedMealCard(
                 .supercardGlassModifier(RoundedCornerShape(10.dp))
                 .testTag("unified_log_meal_button"),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
+                containerColor = AccentPurple.copy(alpha = 0.15f),
                 contentColor = AccentPurple,
                 disabledContainerColor = BorderColorSubtle,
                 disabledContentColor = TextSecundario
@@ -669,7 +574,7 @@ fun UnifiedMealCard(
                     Icon(
                         imageVector = Icons.Default.AutoAwesome,
                         contentDescription = "IA",
-                        modifier = Modifier.size(15.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
@@ -681,32 +586,6 @@ fun UnifiedMealCard(
             }
         }
 
-        // Logged meals per category (only when showHistory=true)
-        if (showHistory) {
-            val hasAnyMeal = meals.isNotEmpty()
-            if (hasAnyMeal) {
-                HorizontalDivider(color = BorderColorSubtle, thickness = 1.dp)
-                Text(
-                    text = stringResource(R.string.nut_meals_of_day),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-
-            categories.forEach { cat ->
-                val catMeals = mealsByCategory[cat] ?: emptyList()
-                if (catMeals.isNotEmpty()) {
-                    MealCategorySection(
-                        categoryName = cat,
-                        icon = categoryIcons[cat] ?: Icons.Default.RestaurantMenu,
-                        meals = catMeals,
-                        mealFoodsMap = mealFoodsMap,
-                        onDeleteMeal = onDeleteMeal
-                    )
-                }
-            }
-        }
     }
 }
 
@@ -716,42 +595,27 @@ fun MealHistoryContent(
     mealFoodsMap: Map<String, List<com.example.data.database.Food>>,
     onDeleteMeal: (String) -> Unit
 ) {
-    val categories = listOf("Desayuno", "Almuerzo", "Cena", "Snack")
-    val categoryIcons = mapOf(
-        "Desayuno" to Icons.Default.LightMode,
-        "Almuerzo" to Icons.Default.WbSunny,
-        "Cena" to Icons.Default.NightlightRound,
-        "Snack" to Icons.Default.RestaurantMenu
-    )
-    val mealsByCategory = categories.associateWith { cat -> meals.filter { it.category == cat } }
     val hasAny = meals.isNotEmpty()
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .supercardGlassModifier(RoundedCornerShape(16.dp))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .padding(vertical = 8.dp),
     ) {
         if (!hasAny) {
             Text(
                 text = stringResource(R.string.nut_no_meals_today),
                 fontSize = 12.sp,
                 color = TextSecundario,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
                 textAlign = TextAlign.Center
             )
         } else {
-            categories.forEach { cat ->
-                val catMeals = mealsByCategory[cat] ?: emptyList()
-                if (catMeals.isNotEmpty()) {
-                    MealCategorySection(
-                        categoryName = cat,
-                        icon = categoryIcons[cat] ?: Icons.Default.RestaurantMenu,
-                        meals = catMeals,
-                        mealFoodsMap = mealFoodsMap,
-                        onDeleteMeal = onDeleteMeal
-                    )
+            meals.forEachIndexed { index, meal ->
+                MealListItem(meal = meal, onDeleteMeal = onDeleteMeal)
+                if (index < meals.lastIndex) {
+                    HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
                 }
             }
         }
@@ -759,150 +623,59 @@ fun MealHistoryContent(
 }
 
 @Composable
-fun MealCategorySection(
-    categoryName: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    meals: List<Meal>,
-    mealFoodsMap: Map<String, List<com.example.data.database.Food>>,
-    onDeleteMeal: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(true) }
-    val totalCal = meals.sumOf { it.totalCalories }
-
-    val catColor = when(categoryName) {
+fun MealListItem(meal: Meal, onDeleteMeal: (String) -> Unit) {
+    val catColor = when(meal.category) {
         "Desayuno" -> Color(0xFFFFEB3B)
         "Almuerzo" -> AccentAmber
-        "Cena" -> AccentGreen
-        "Snack" -> Color(0xFF4CAF50)
+        "Cena" -> AccentPrimary
+        "Snack" -> GreenSecondary
         else -> Color.White
     }
+    val icon = when(meal.category) {
+        "Desayuno" -> Icons.Default.LightMode
+        "Almuerzo" -> Icons.Default.WbSunny
+        "Cena" -> Icons.Default.NightlightRound
+        else -> Icons.Default.RestaurantMenu
+    }
 
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .animateContentSize()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Category header (collapsible)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .metricCellGlassModifier(RoundedCornerShape(10.dp))
-                .clip(RoundedCornerShape(10.dp))
-                .clickable { expanded = !expanded },
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(modifier = Modifier.width(6.dp).height(44.dp).background(catColor))
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 14.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = categoryName,
-                    tint = catColor,
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = getTranslatedCategory(categoryName), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        // Vertical color bar
+        Box(modifier = Modifier.width(4.dp).height(40.dp).background(catColor, RoundedCornerShape(4.dp)))
+        Spacer(modifier = Modifier.width(12.dp))
+        
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(imageVector = icon, contentDescription = meal.category, tint = catColor, modifier = Modifier.size(14.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = getTranslatedCategory(meal.category), style = AppTextStyle.statSmall.copy(color = Color.White))
             }
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "$totalCal kcal",
+                text = meal.inputText,
                 fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.padding(end = 12.dp)
-            )
-            Icon(
-                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = if (expanded) "Colapsar" else "Expandir",
-                tint = TextSecundario,
-                modifier = Modifier.size(16.dp)
+                color = TextSecundario,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
         }
-
-        AnimatedVisibility(visible = expanded) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 6.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                meals.forEach { meal ->
-                    val foods = mealFoodsMap[meal.id] ?: emptyList()
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(BorderColorSubtle, RoundedCornerShape(10.dp))
-                            .padding(horizontal = 12.dp, vertical = 10.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.Top,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = meal.inputText,
-                                    fontSize = 12.sp,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Medium,
-                                    lineHeight = 16.sp,
-                                    maxLines = 2,
-                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                )
-                                Spacer(modifier = Modifier.height(3.dp))
-                                Text(
-                                    text = stringResource(R.string.nut_macro_summary, meal.totalCalories, meal.totalProtein.toInt(), meal.totalCarbs.toInt(), meal.totalFat.toInt()),
-                                    fontSize = 11.sp,
-                                    color = TextSecundario,
-                                    maxLines = 1,
-                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                )
-                            }
-                            IconButton(
-                                onClick = { onDeleteMeal(meal.id) },
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = stringResource(R.string.btn_delete),
-                                    tint = TextSecundario,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                            }
-                        }
-
-                        if (foods.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(6.dp))
-                            HorizontalDivider(color = BorderColor, thickness = 0.5.dp)
-                            Spacer(modifier = Modifier.height(6.dp))
-                            foods.forEach { food ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 2.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = food.name,
-                                        fontSize = 11.sp,
-                                        color = Color.White,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    Text(
-                                        text = "${food.calories} kcal",
-                                        fontSize = 11.sp,
-                                        color = TextSecundario,
-                                        maxLines = 1
-                                    )
-                                }
-                            }
-                        }
-                    }
+        
+        Column(horizontalAlignment = Alignment.End) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "${meal.totalCalories} kcal", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                IconButton(onClick = { onDeleteMeal(meal.id) }, modifier = Modifier.size(24.dp).padding(start = 4.dp)) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Delete", tint = TextSecundario, modifier = Modifier.size(14.dp))
                 }
             }
+            Text(
+                text = "P:${meal.totalProtein.toInt()}g C:${meal.totalCarbs.toInt()}g G:${meal.totalFat.toInt()}g",
+                fontSize = 10.sp,
+                color = TextSecundario
+            )
         }
     }
 }

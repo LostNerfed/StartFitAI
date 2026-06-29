@@ -8,37 +8,89 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.R
 
-val OutfitFontFamily = FontFamily(
-    Font(R.font.outfit_regular, FontWeight.Normal),
-    Font(R.font.outfit_medium, FontWeight.Medium),
-    Font(R.font.outfit_semibold, FontWeight.SemiBold),
-    Font(R.font.outfit_bold, FontWeight.Bold)
+val InterFontFamily = FontFamily(
+    Font(R.font.inter_regular, FontWeight.Normal),
+    Font(R.font.inter_medium, FontWeight.Medium),
+    Font(R.font.inter_semibold, FontWeight.SemiBold),
+    Font(R.font.inter_bold, FontWeight.Bold)
 )
 
-val PointlessFontFamily = FontFamily(
-    Font(R.font.pointless, FontWeight.Normal)
+val OswaldFontFamily = FontFamily(
+    Font(R.font.oswald_regular, FontWeight.Normal),
+    Font(R.font.oswald_medium, FontWeight.Medium),
+    Font(R.font.oswald_semibold, FontWeight.SemiBold),
+    Font(R.font.oswald_bold, FontWeight.Bold)
 )
 
 val defaultTypography = Typography()
 
 val Typography = Typography(
-    displayLarge = defaultTypography.displayLarge.copy(fontFamily = OutfitFontFamily),
-    displayMedium = defaultTypography.displayMedium.copy(fontFamily = OutfitFontFamily),
-    displaySmall = defaultTypography.displaySmall.copy(fontFamily = OutfitFontFamily),
-
-    headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = OutfitFontFamily),
-    headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = OutfitFontFamily),
-    headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = OutfitFontFamily),
-
-    titleLarge = defaultTypography.titleLarge.copy(fontFamily = OutfitFontFamily),
-    titleMedium = defaultTypography.titleMedium.copy(fontFamily = OutfitFontFamily),
-    titleSmall = defaultTypography.titleSmall.copy(fontFamily = OutfitFontFamily),
-
-    bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = OutfitFontFamily),
-    bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = OutfitFontFamily),
-    bodySmall = defaultTypography.bodySmall.copy(fontFamily = OutfitFontFamily),
-
-    labelLarge = defaultTypography.labelLarge.copy(fontFamily = OutfitFontFamily),
-    labelMedium = defaultTypography.labelMedium.copy(fontFamily = OutfitFontFamily),
-    labelSmall = defaultTypography.labelSmall.copy(fontFamily = OutfitFontFamily)
+    displayLarge = TextStyle(fontFamily = OswaldFontFamily),
+    displayMedium = TextStyle(fontFamily = OswaldFontFamily),
+    displaySmall = TextStyle(fontFamily = OswaldFontFamily),
+    headlineLarge = TextStyle(fontFamily = OswaldFontFamily),
+    headlineMedium = TextStyle(fontFamily = OswaldFontFamily),
+    headlineSmall = TextStyle(fontFamily = OswaldFontFamily),
+    titleLarge = TextStyle(fontFamily = InterFontFamily),
+    titleMedium = TextStyle(fontFamily = InterFontFamily),
+    titleSmall = TextStyle(fontFamily = InterFontFamily),
+    bodyLarge = TextStyle(fontFamily = InterFontFamily),
+    bodyMedium = TextStyle(fontFamily = InterFontFamily),
+    bodySmall = TextStyle(fontFamily = InterFontFamily),
+    labelLarge = TextStyle(fontFamily = InterFontFamily),
+    labelMedium = TextStyle(fontFamily = InterFontFamily),
+    labelSmall = TextStyle(fontFamily = InterFontFamily)
 )
+
+object AppTextStyle {
+    val headlineOswald = TextStyle(
+        fontFamily = OswaldFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp
+    )
+    val displayOswald = TextStyle(
+        fontFamily = OswaldFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 32.sp
+    )
+    val titleOswald = TextStyle(
+        fontFamily = OswaldFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
+    )
+    val numberLarge = TextStyle(
+        fontFamily = OswaldFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 42.sp,
+        fontFeatureSettings = "tnum"
+    )
+    val numberMedium = TextStyle(
+        fontFamily = OswaldFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        fontFeatureSettings = "tnum"
+    )
+    val numberSmall = TextStyle(
+        fontFamily = OswaldFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp,
+        fontFeatureSettings = "tnum"
+    )
+    val statBig = TextStyle(
+        fontFamily = OswaldFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 14.sp,
+        fontFeatureSettings = "tnum"
+    )
+    val statSmall = TextStyle(
+        fontFamily = OswaldFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 12.sp,
+        fontFeatureSettings = "tnum"
+    )
+    val labelBold = TextStyle(
+        fontFamily = InterFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 12.sp
+    )
+}

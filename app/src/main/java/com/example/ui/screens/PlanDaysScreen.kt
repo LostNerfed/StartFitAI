@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -104,13 +105,20 @@ fun PlanDaysScreen(
         allExercises.groupBy { it.category }.toSortedMap()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Transparent)
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+
+    val routinesListState = rememberLazyListState()
+    val exercisesListState = rememberLazyListState()
+    val currentListState = if (activePlanTab == 0) routinesListState else exercisesListState
+    val isFabVisible by remember { derivedStateOf { !currentListState.isScrollInProgress } }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
         Spacer(modifier = Modifier.height(10.dp))
 
         val selectedRoutine = selectedRoutineForModelDetails
@@ -172,7 +180,7 @@ fun PlanDaysScreen(
                             color = Color.White
                         )
                         Text(
-                            text = stringResource(R.string.plan_templates_subtitle),
+                            text = stringResource(R.string.home_routine_templates),
                             fontSize = 11.sp,
                             color = TextSecundario
                         )
@@ -195,15 +203,7 @@ fun PlanDaysScreen(
                         ) {
                             Icon(imageVector = Icons.Default.FileUpload, contentDescription = stringResource(R.string.plan_export_routines), tint = Color.White, modifier = Modifier.size(18.dp))
                         }
-                        IconButton(
-                            onClick = { showCreateRoutineDialog = true },
-                            modifier = Modifier
-                                .liquidGlassModifier(CircleShape)
-                                .size(36.dp)
-                                .testTag("add_routine_button")
-                        ) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = "Add Routine", tint = Color.White)
-                        }
+
                     }
                 }
 
@@ -225,6 +225,7 @@ fun PlanDaysScreen(
                     }
                 } else {
                     LazyColumn(
+                        state = routinesListState,
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
@@ -254,24 +255,17 @@ fun PlanDaysScreen(
                             color = Color.White
                         )
                         Text(
-                            text = stringResource(R.string.plan_exercises_subtitle),
+                            text = stringResource(R.string.plan_exercise_list),
                             fontSize = 11.sp,
                             color = TextSecundario
                         )
                     }
 
-                    IconButton(
-                        onClick = { showAddCustomExerciseDialog = true },
-                        modifier = Modifier
-                            .liquidGlassModifier(CircleShape)
-                            .size(36.dp)
-                            .testTag("add_custom_exercise_mother_button")
-                    ) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.plan_new_exercise), tint = Color.White)
-                    }
+
                 }
 
                 LazyColumn(
+                    state = exercisesListState,
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -476,7 +470,7 @@ fun PlanDaysScreen(
                     .fillMaxWidth()
                     .height(48.dp)
                     .testTag("start_workout_from_routine_button"),
-                colors = ButtonDefaults.buttonColors(containerColor = AccentGreen, contentColor = Color.Black),
+                colors = ButtonDefaults.buttonColors(containerColor = AccentPrimary, contentColor = Color.Black),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -956,7 +950,32 @@ fun PlanDaysScreen(
             titleContentColor = Color.White,
             textContentColor = Color.White
         )
-    }
+    } // Close Column
+
+        // FAB logic
+        if (selectedRoutineForModelDetails == null) {
+            androidx.compose.animation.AnimatedVisibility(
+                visible = isFabVisible,
+                enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically(initialOffsetY = { 100 }),
+                exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.slideOutVertically(targetOffsetY = { 100 }),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 24.dp, bottom = 24.dp)
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        if (activePlanTab == 0) showCreateRoutineDialog = true
+                        else showAddCustomExerciseDialog = true
+                    },
+                    containerColor = AccentPrimary,
+                    contentColor = Color.Black,
+                    shape = CircleShape
+                ) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(28.dp))
+                }
+            }
+        }
+    } // Close Box wrapper
 }
 
 @Composable

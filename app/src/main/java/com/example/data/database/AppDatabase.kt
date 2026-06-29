@@ -305,6 +305,9 @@ interface AppDao {
     @Query("SELECT * FROM exercises ORDER BY name ASC")
     suspend fun getAllExercises(): List<ExerciseEntity>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM exercises WHERE name = :name)")
+    suspend fun exerciseExists(name: String): Boolean
+
     @Query("SELECT COUNT(*) FROM exercises")
     suspend fun getExercisesCount(): Int
 
@@ -316,6 +319,9 @@ interface AppDao {
 
     @Query("DELETE FROM exercises WHERE name = :name")
     suspend fun deleteExercise(name: String)
+
+    @Query("DELETE FROM exercises WHERE id NOT IN (SELECT MIN(id) FROM exercises GROUP BY name)")
+    suspend fun deduplicateExercises()
 
     // ── Chat Sessions ─────────────────────────────────────────────────────────
     @Query("SELECT * FROM chat_sessions ORDER BY dateMillis DESC")

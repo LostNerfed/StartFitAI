@@ -213,6 +213,7 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
                     repository.deleteExercise(ex)
                 }
             }
+            repository.deduplicateExercises()
 
             // Restore/Auto-save memory recovery: check if a workout remained open/unfinished
             val activeId = s.activeSessionId
