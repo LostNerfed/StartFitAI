@@ -30,6 +30,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -150,14 +152,14 @@ fun AuthScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Transparent)
-            .padding(24.dp)
+            .padding(start = 24.dp, end = 24.dp, bottom = 24.dp, top = 8.dp)
             .imePadding(),
         contentAlignment = Alignment.Center
     ) {
         val animatedProgress by animateFloatAsState(targetValue = (step.toFloat() + 1f) / 6f, animationSpec = tween(500))
         LinearProgressIndicator(
             progress = { animatedProgress },
-            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).padding(top = 16.dp).height(4.dp).clip(RoundedCornerShape(2.dp)),
+            modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter).statusBarsPadding().height(4.dp).clip(RoundedCornerShape(2.dp)),
             color = Color.White,
             trackColor = Color.White.copy(alpha = 0.2f)
         )
@@ -410,7 +412,7 @@ fun AuthScreen(
                         }
                         3 -> {
                             // Step 3: Perfil Físico Completo (Género, Edad, Altura, Peso)
-                            Text("Perfil físico", style = AppTextStyle.headlineOswald.copy(color = Color.White), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp).offset(y = (-7).dp))
+                            Text("Perfil físico", style = AppTextStyle.headlineOswald.copy(color = Color.White), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 20.dp))
                             
                             // Género
                             Row(
@@ -418,57 +420,49 @@ fun AuthScreen(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(165.dp)
-                                            .then(
-                                                if (gender == "Hombre") Modifier
-                                                    .background(Color.White.copy(alpha = 0.97f), CircleShape)
-                                                    .clip(CircleShape)
-                                                else Modifier
-                                                    .liquidGlassModifier(CircleShape)
-                                            )
-                                            .clickable { gender = "Hombre" },
-                                        contentAlignment = Alignment.Center
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.clickable { gender = "Hombre" }
                                     ) {
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(156.dp)
+                                                .clip(CircleShape)
+                                                .border(4.dp, if (gender == "Hombre") Color(0xFF00B0FF) else Color.Transparent, CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
                                             Image(
-                                                painter = painterResource(id = R.drawable.male),
+                                                painter = painterResource(id = R.drawable.maleicon),
                                                 contentDescription = null,
-                                                modifier = Modifier
-                                                    .size(72.dp)
-                                                    .clip(CircleShape)
+                                                modifier = Modifier.fillMaxSize().padding(8.dp).clip(CircleShape),
+                                                colorFilter = if (gender == "Hombre") null else ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
                                             )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(stringResource(R.string.auth_gender_m), style = AppTextStyle.statSmall.copy(color = if (gender == "Hombre") Color.Black else Color.White))
                                         }
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(stringResource(R.string.auth_gender_m), style = AppTextStyle.statSmall.copy(color = Color.White))
                                     }
                                 }
                                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(165.dp)
-                                            .then(
-                                                if (gender == "Mujer") Modifier
-                                                    .background(Color.White.copy(alpha = 0.97f), CircleShape)
-                                                    .clip(CircleShape)
-                                                else Modifier
-                                                    .liquidGlassModifier(CircleShape)
-                                            )
-                                            .clickable { gender = "Mujer" },
-                                        contentAlignment = Alignment.Center
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.clickable { gender = "Mujer" }
                                     ) {
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(156.dp)
+                                                .clip(CircleShape)
+                                                .border(4.dp, if (gender == "Mujer") Color(0xFF00B0FF) else Color.Transparent, CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
                                             Image(
-                                                painter = painterResource(id = R.drawable.female),
+                                                painter = painterResource(id = R.drawable.femaleicon),
                                                 contentDescription = null,
-                                                modifier = Modifier
-                                                    .size(72.dp)
-                                                    .clip(CircleShape)
+                                                modifier = Modifier.fillMaxSize().padding(8.dp).clip(CircleShape),
+                                                colorFilter = if (gender == "Mujer") null else ColorFilter.colorMatrix(ColorMatrix().apply { setToSaturation(0f) })
                                             )
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(stringResource(R.string.auth_gender_f), style = AppTextStyle.statSmall.copy(color = if (gender == "Mujer") Color.Black else Color.White))
                                         }
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(stringResource(R.string.auth_gender_f), style = AppTextStyle.statSmall.copy(color = Color.White))
                                     }
                                 }
                             }
@@ -836,7 +830,7 @@ fun WheelPicker(
     val containerWidth = screenWidth - 48.dp
     val horizontalPadding = (containerWidth - itemWidth) / 2
 
-    Box(modifier = modifier.height(110.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.height(76.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
         androidx.compose.foundation.lazy.LazyRow(
             state = listState,
             flingBehavior = flingBehavior,
@@ -868,11 +862,11 @@ fun WheelPicker(
                     ) {
                         androidx.compose.material3.Text(
                             text = items[index],
-                            fontSize = androidx.compose.ui.unit.TextUnit(20f, androidx.compose.ui.unit.TextUnitType.Sp),
+                            fontSize = androidx.compose.ui.unit.TextUnit(15f, androidx.compose.ui.unit.TextUnitType.Sp),
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                             color = Color.White,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).graphicsLayer {
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).graphicsLayer {
                                 val layoutInfo = listState.layoutInfo
                                 val unpaddedCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2f
                                 val itemInfo = layoutInfo.visibleItemsInfo.find { it.index == index }
@@ -885,7 +879,7 @@ fun WheelPicker(
                                     scaleX = 0.85f + (fraction * 0.45f)
                                     scaleY = 0.85f + (fraction * 0.45f)
                                     alpha = 0.35f + (fraction * 0.65f)
-                                    translationY = -(fraction * 36f)
+                                    translationY = -(fraction * 28f)
                                 } else {
                                     scaleX = 0.85f
                                     scaleY = 0.85f
@@ -895,7 +889,7 @@ fun WheelPicker(
                         )
                         
                         Row(
-                            modifier = Modifier.fillMaxWidth().height(36.dp),
+                            modifier = Modifier.fillMaxWidth().height(28.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.Bottom
                         ) {
@@ -918,7 +912,7 @@ fun WheelPicker(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .width(4.dp)
-                .height(44.dp)
+                .height(34.dp)
                 .background(Color(0xFF00C2FF), RoundedCornerShape(2.dp))
         )
     }

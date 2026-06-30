@@ -159,6 +159,13 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
     private val _dailyInsightLoading = MutableStateFlow(false)
     val dailyInsightLoading: StateFlow<Boolean> = _dailyInsightLoading.asStateFlow()
 
+    // Discover Carousel Cards
+    private val _discoverCards = MutableStateFlow<List<com.example.ui.components.DiscoverCardModel>>(emptyList())
+    val discoverCards: StateFlow<List<com.example.ui.components.DiscoverCardModel>> = _discoverCards.asStateFlow()
+
+    private val _suggestedRoutines = MutableStateFlow<List<String>>(emptyList())
+    val suggestedRoutines: StateFlow<List<String>> = _suggestedRoutines.asStateFlow()
+
     // Calculated Maintenance Calories (TDEE)
     val maintenanceCalories: StateFlow<Int> = settingsState.map { settings ->
         val weightKg = if (settings.weightUnit == "lb") settings.bodyWeight / 2.20462 else settings.bodyWeight
@@ -250,6 +257,9 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
 
         // Cleanup old chats
         viewModelScope.launch { repository.cleanupOldChats() }
+
+        // Generate Daily Discover Cards
+        generateDailyDiscoverCards()
     }
 
     // Auth and settings helper
@@ -547,6 +557,256 @@ class FitnessViewModel(private val app: Application) : AndroidViewModel(app) {
             }
         }
     }
+
+    // Daily Discover Cards Generation (AI Cached)
+    fun generateDailyDiscoverCards() {
+        viewModelScope.launch {
+            val s = repository.getSettingsSync()
+            val todayStr = getTodayDateString()
+            val cards = mutableListOf<com.example.ui.components.DiscoverCardModel>()
+            
+            val allSessions = repository.getAllSessionsSync()
+            val lastSession = allSessions.maxByOrNull { it.dateMillis }
+
+            // 1. PR Check (Only if broke a mark in the last session)
+            if (lastSession != null) {
+                val lastSessionLogs = repository.getLogsForSessionSync(lastSession.id)
+                val allLogsList = repository.getAllLogsSync()
+                
+                var brokenPRLog: com.example.data.database.SessionLog? = null
+                
+                for (log in lastSessionLogs) {
+                    if (log.weightKg > 0) {
+                        val allExLogs = allLogsList.filter { it.exerciseName.equals(log.exerciseName, ignoreCase = true) }
+                        val previousMax = allExLogs.filter { it.sessionId != lastSession.id }.maxOfOrNull { it.weightKg } ?: 0.0
+                        if (log.weightKg > previousMax && previousMax > 0.0) {
+                            brokenPRLog = log
+                            break
+                        }
+                    }
+                }
+                
+                if (brokenPRLog != null) {
+                    cards.add(
+                        com.example.ui.components.DiscoverCardModel(
+                            id = "pr_${brokenPRLog.id}",
+                            title = "¡Récord Personal!",
+                            description = "Rompiste tu marca: ${brokenPRLog.weightKg}kg en ${brokenPRLog.exerciseName}",
+                            tag = "Logro",
+                            type = com.example.ui.components.DiscoverCardType.PR
+                        )
+                    )
+                }
+            }
+
+            // 2. 2-Day AI Fitness Tip (Replacing "Primeros Pasos")
+            val nowMillis = System.currentTimeMillis()
+            val twoDaysInMillis = 2 * 24 * 60 * 60 * 1000L
+            
+            if (nowMillis - s.lastTipFetchTimestamp > twoDaysInMillis || s.cachedPrimerosPasosTip.isEmpty()) {
+                cards.add(
+                    com.example.ui.components.DiscoverCardModel(
+                        id = "consejo_fitness",
+                        title = "Cargando Consejo...",
+                        description = "Generando tu consejo fitness de IA...",
+                        tag = "Sugerencia",
+                        type = com.example.ui.components.DiscoverCardType.FITNESS_TIP
+                    )
+                )
+                
+                // Launch separate fetch for the 2-day tip
+                viewModelScope.launch {
+                    try {
+                        val tipPrompt = "Actúa como Coach de StartFit AI. Dame un consejo general de fitness útil, motivacional y claro para un usuario cuyo objetivo es ${s.fitnessGoal}. Responde en máximo 10 palabras. Sé muy breve y directo."
+                        val tipResponse = com.example.data.api.AIService.generateResponse(tipPrompt).trim()
+                        
+                        val updatedS = repository.getSettingsSync().copy(
+                            cachedPrimerosPasosTip = tipResponse,
+                            lastTipFetchTimestamp = System.currentTimeMillis()
+                        )
+                        repository.saveSettings(updatedS)
+                        
+                        val currentCards = _discoverCards.value.toMutableList()
+                        val tipIdx = currentCards.indexOfFirst { it.id == "consejo_fitness" }
+                        if (tipIdx != -1) {
+                            currentCards[tipIdx] = currentCards[tipIdx].copy(title = "Consejo Fitness", description = tipResponse)
+                            _discoverCards.value = currentCards
+                        }
+                    } catch (e: Exception) {
+                        // Fallback to cache if fails
+                        if (s.cachedPrimerosPasosTip.isNotEmpty()) {
+                            val currentCards = _discoverCards.value.toMutableList()
+                            val tipIdx = currentCards.indexOfFirst { it.id == "consejo_fitness" }
+                            if (tipIdx != -1) {
+                                currentCards[tipIdx] = currentCards[tipIdx].copy(title = "Consejo Fitness", description = s.cachedPrimerosPasosTip)
+                                _discoverCards.value = currentCards
+                            }
+                        }
+                    }
+                }
+            } else {
+                cards.add(
+                    com.example.ui.components.DiscoverCardModel(
+                        id = "consejo_fitness",
+                        title = "Consejo Fitness",
+                        description = s.cachedPrimerosPasosTip,
+                        tag = "Sugerencia",
+                        type = com.example.ui.components.DiscoverCardType.FITNESS_TIP
+                    )
+                )
+            }
+
+            // 3. Daily AI Content (Challenge & Tip)
+            if (s.lastDiscoverDate == todayStr && s.cachedDiscoverChallenge.isNotEmpty() && s.cachedDiscoverTip.isNotEmpty()) {
+                // Use Cache
+                cards.add(
+                    com.example.ui.components.DiscoverCardModel(
+                        id = "challenge_daily",
+                        title = "Reto de Hoy",
+                        description = s.cachedDiscoverChallenge,
+                        tag = "Desafío",
+                        type = com.example.ui.components.DiscoverCardType.CHALLENGE
+                    )
+                )
+                cards.add(
+                    com.example.ui.components.DiscoverCardModel(
+                        id = "tip_daily",
+                        title = "Consejo Nutricional",
+                        description = s.cachedDiscoverTip,
+                        tag = "Nutrición",
+                        type = com.example.ui.components.DiscoverCardType.TIP
+                    )
+                )
+                cards.add(
+                    com.example.ui.components.DiscoverCardModel(
+                        id = "routine_daily",
+                        title = "Rutinas de la Semana",
+                        description = "Toca para ver tus 3 rutinas sugeridas por la IA.",
+                        tag = "Entrenamiento",
+                        type = com.example.ui.components.DiscoverCardType.ROUTINE
+                    )
+                )
+                _discoverCards.value = cards
+            } else {
+                // Ask AI (Silent Background Request)
+                cards.add(
+                    com.example.ui.components.DiscoverCardModel(
+                        id = "challenge_daily",
+                        title = "Cargando Reto...",
+                        description = "Generando tu desafío personalizado del día.",
+                        tag = "Desafío",
+                        type = com.example.ui.components.DiscoverCardType.CHALLENGE
+                    )
+                )
+                cards.add(
+                    com.example.ui.components.DiscoverCardModel(
+                        id = "tip_daily",
+                        title = "Cargando Consejo...",
+                        description = "Analizando tu perfil para el mejor tip.",
+                        tag = "Nutrición",
+                        type = com.example.ui.components.DiscoverCardType.TIP
+                    )
+                )
+                cards.add(
+                    com.example.ui.components.DiscoverCardModel(
+                        id = "routine_daily",
+                        title = "Rutinas de la Semana",
+                        description = "Toca para ver tus 3 rutinas sugeridas por la IA.",
+                        tag = "Entrenamiento",
+                        type = com.example.ui.components.DiscoverCardType.ROUTINE
+                    )
+                )
+                _discoverCards.value = cards
+
+                try {
+                    val prompt = """
+                        Actúa como Coach de StartFit AI. El usuario pesa ${s.bodyWeight}kg, objetivo: ${s.fitnessGoal}. 
+                        Genera recomendaciones generales:
+                        1. Un reto físico general y corto para hoy.
+                        2. Un consejo nutricional general y corto.
+                        Regla estricta: Cada uno no debe pasar de 10 palabras.
+                        Formato estricto (no uses markdown, solo las 2 líneas):
+                        RETO=tu reto aquí
+                        TIP=tu tip aquí
+                    """.trimIndent()
+
+                    val response = com.example.data.api.AIService.generateResponse(prompt)
+                    val challengeMatch = Regex("RETO=(.*)").find(response)?.groupValues?.get(1)?.trim() ?: "Mantente activo por 30 minutos."
+                    val tipMatch = Regex("TIP=(.*)").find(response)?.groupValues?.get(1)?.trim() ?: "Bebe agua constantemente."
+
+                    val updatedSettings = repository.getSettingsSync().copy(
+                        lastDiscoverDate = todayStr,
+                        cachedDiscoverChallenge = challengeMatch,
+                        cachedDiscoverTip = tipMatch
+                    )
+                    repository.saveSettings(updatedSettings)
+
+                    val finalCards = _discoverCards.value.toMutableList()
+                    val cIdx = finalCards.indexOfFirst { it.id == "challenge_daily" }
+                    if (cIdx != -1) finalCards[cIdx] = finalCards[cIdx].copy(title = "Reto de Hoy", description = challengeMatch)
+                    val tIdx = finalCards.indexOfFirst { it.id == "tip_daily" }
+                    if (tIdx != -1) finalCards[tIdx] = finalCards[tIdx].copy(title = "Consejo Nutricional", description = tipMatch)
+
+                    _discoverCards.value = finalCards
+                } catch (e: Exception) {
+                    // Fail silently, generic cards remain
+                }
+            }
+        }
+    }
+
+    fun checkAndFetchSuggestedRoutines() {
+        viewModelScope.launch {
+            repository.settings.firstOrNull()?.let { s ->
+                val now = System.currentTimeMillis()
+                val twoDaysInMillis = 172_800_000L
+
+                if (now - s.lastRoutineFetchTimestamp > twoDaysInMillis || s.cachedSuggestedRoutines.isEmpty()) {
+                    // Time to fetch new routines
+                    try {
+                        val prompt = """
+                            Actúa como un Coach experto de StartFit AI. El usuario pesa ${s.bodyWeight}kg y su objetivo es: ${s.fitnessGoal}.
+                            REQUISITO ESTRICTO: Las 3 rutinas sugeridas deben ser las MEJORES a nivel de HIPERTROFIA, con base científica (ej. volumen adecuado, cercanía al fallo, ejercicios clave).
+                            Genera 3 rutinas sugeridas cortas. Por ejemplo: 1 de Pecho, 1 de Espalda, 1 de Brazo o variaciones según el objetivo.
+                            Usa formato estricto (3 líneas):
+                            RUTINA1=tu rutina 1
+                            RUTINA2=tu rutina 2
+                            RUTINA3=tu rutina 3
+                        """.trimIndent()
+
+                        val response = com.example.data.api.AIService.generateResponse(prompt)
+                        val r1 = Regex("RUTINA1=(.*)").find(response)?.groupValues?.get(1)?.trim() ?: "Pecho: 4x10 Press de Banca"
+                        val r2 = Regex("RUTINA2=(.*)").find(response)?.groupValues?.get(1)?.trim() ?: "Espalda: 4x10 Dominadas"
+                        val r3 = Regex("RUTINA3=(.*)").find(response)?.groupValues?.get(1)?.trim() ?: "Brazos: 3x12 Curl de Bíceps"
+
+                        val combinedStr = "$r1|$r2|$r3"
+
+                        repository.saveSettings(
+                            s.copy(
+                                lastRoutineFetchTimestamp = now,
+                                cachedSuggestedRoutines = combinedStr
+                            )
+                        )
+
+                        _suggestedRoutines.value = listOf(r1, r2, r3)
+
+                    } catch (e: Exception) {
+                        if (s.cachedSuggestedRoutines.isNotEmpty()) {
+                            _suggestedRoutines.value = s.cachedSuggestedRoutines.split("|")
+                        } else {
+                            _suggestedRoutines.value = emptyList()
+                        }
+                    }
+                } else {
+                    // Use cache
+                    if (s.cachedSuggestedRoutines.isNotEmpty()) {
+                        _suggestedRoutines.value = s.cachedSuggestedRoutines.split("|")
+                    }
+                }
+            }
+        }
+    }
+
 
     // AI Chat History Management
     fun createNewChat() {

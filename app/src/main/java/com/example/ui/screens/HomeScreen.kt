@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+
+import com.example.ui.components.DiscoverCarousel
+import com.example.ui.components.DiscoverCardType
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -96,8 +99,10 @@ fun HomeScreen(
     var showStartWorkoutSheet by remember { mutableStateOf(false) }
     var showWeightHistorySheet by remember { mutableStateOf(false) }
     var isFabExpanded by remember { mutableStateOf(false) }
+    var showRoutineDialog by remember { mutableStateOf(false) }
 
     // Calculate metrics
+        val discoverCards by viewModel.discoverCards.collectAsState()
     val consumedCalories = selectedDateMeals.sumOf { it.totalCalories }
     val targetCalories = settings.targetCalories
 
@@ -130,7 +135,7 @@ fun HomeScreen(
             .background(Color.Transparent),
         containerColor = Color.Transparent,
         floatingActionButton = {
-            Column(horizontalAlignment = Alignment.End) {
+            Column(horizontalAlignment = Alignment.End, modifier = Modifier.offset(y = 30.dp)) {
                 androidx.compose.animation.AnimatedVisibility(
                     visible = isFabExpanded,
                     enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically(initialOffsetY = { 50 }),
@@ -145,8 +150,15 @@ fun HomeScreen(
                             Text("Iniciar rutina", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                             SmallFloatingActionButton(
                                 onClick = {
+                                    val card = discoverCards.firstOrNull()
+                                    if (card?.type == DiscoverCardType.NEW_USER) {
+                                        showStartWorkoutSheet = true
+                                    } else if (card?.type == DiscoverCardType.ROUTINE) {
+                                        showRoutineDialog = true
+                                    } else {
+                                        showStartWorkoutSheet = true
+                                    }
                                     isFabExpanded = false
-                                    showStartWorkoutSheet = true
                                 },
                                 containerColor = AccentPrimary,
                                 contentColor = Color.Black
@@ -315,6 +327,7 @@ fun HomeScreen(
                 }
             }
 
+
             // Supercard: daily calories, streak, weight and routine launcher
             item {
                 val lastSessionForCals = sessions.maxByOrNull { it.dateMillis }
@@ -327,6 +340,24 @@ fun HomeScreen(
                     targetCalories = targetCalories,
                     settings = settings
                 )
+            }
+
+            // Discover Carousel (Para ti)
+            if (discoverCards.isNotEmpty()) {
+                item {
+                    DiscoverCarousel(
+                        cards = discoverCards,
+                        onCardClick = { card ->
+                            if (card.type == DiscoverCardType.NEW_USER) {
+                                showStartWorkoutSheet = true
+                            } else if (card.type == DiscoverCardType.ROUTINE) {
+                                showRoutineDialog = true
+                            } else {
+                                showStartWorkoutSheet = true
+                            }
+                        }
+                    )
+                }
             }
 
             // Coach Chat module

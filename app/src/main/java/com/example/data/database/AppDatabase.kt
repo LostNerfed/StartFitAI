@@ -26,6 +26,14 @@ data class FitSettingsEntity(
     val weightUnit: String = "kg",
     val heightUnit: String = "cm",
     val activeSessionId: String? = null,
+    val lastDiscoverDate: String = "",
+    val cachedDiscoverChallenge: String = "",
+    val cachedDiscoverTip: String = "",
+    val cachedDiscoverRoutine: String = "",
+    val lastRoutineFetchTimestamp: Long = 0L,
+    val cachedSuggestedRoutines: String = "",
+    val cachedPrimerosPasosTip: String = "",
+    val lastTipFetchTimestamp: Long = 0L,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )
@@ -242,6 +250,9 @@ interface AppDao {
     @Query("SELECT * FROM session_logs ORDER BY createdAt DESC")
     fun watchAllLogs(): Flow<List<SessionLogEntity>>
 
+    @Query("SELECT * FROM session_logs")
+    suspend fun getAllLogs(): List<SessionLogEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSessionLog(entity: SessionLogEntity)
 
@@ -432,7 +443,7 @@ interface AppDao {
         HeatmapDataEntity::class,
         WeightEntryEntity::class
     ],
-    version = 3,
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -458,6 +469,26 @@ abstract class AppDatabase : RoomDatabase() {
             """)
         }
 
+        private val MIGRATION_3_4 = Migration(3, 4) { db ->
+            db.execSQL("ALTER TABLE fit_settings ADD COLUMN lastDiscoverDate TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE fit_settings ADD COLUMN cachedDiscoverChallenge TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE fit_settings ADD COLUMN cachedDiscoverTip TEXT NOT NULL DEFAULT ''")
+        }
+
+        private val MIGRATION_4_5 = Migration(4, 5) { db ->
+            db.execSQL("ALTER TABLE fit_settings ADD COLUMN cachedDiscoverRoutine TEXT NOT NULL DEFAULT ''")
+        }
+
+        private val MIGRATION_5_6 = Migration(5, 6) { db ->
+            db.execSQL("ALTER TABLE fit_settings ADD COLUMN lastRoutineFetchTimestamp INTEGER NOT NULL DEFAULT 0")
+            db.execSQL("ALTER TABLE fit_settings ADD COLUMN cachedSuggestedRoutines TEXT NOT NULL DEFAULT ''")
+        }
+
+        private val MIGRATION_6_7 = Migration(6, 7) { db ->
+            db.execSQL("ALTER TABLE fit_settings ADD COLUMN cachedPrimerosPasosTip TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE fit_settings ADD COLUMN lastTipFetchTimestamp INTEGER NOT NULL DEFAULT 0")
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -465,7 +496,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "startfit_database"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                     .fallbackToDestructiveMigration(true)
                     .build()
                 INSTANCE = instance

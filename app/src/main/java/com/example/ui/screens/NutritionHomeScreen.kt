@@ -38,6 +38,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.patrykandpatrick.vico.compose.component.shape.shader.fromBrush
 import com.example.data.database.Meal
 import com.example.ui.FitnessViewModel
 import com.example.ui.theme.*
@@ -135,7 +136,7 @@ fun NutritionHomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .supercardGlassModifier(RoundedCornerShape(16.dp))
-                .padding(12.dp)
+                .padding(16.dp)
         ) {
             val dynamicTargetCalories = remember(settings.targetCalories, settings.fitnessGoal, maintenanceCalories) {
                 if (settings.targetCalories > 0) return@remember settings.targetCalories
@@ -251,8 +252,8 @@ fun NutritionHomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .supercardGlassModifier(RoundedCornerShape(12.dp))
-                .padding(12.dp)
+                .supercardGlassModifier(RoundedCornerShape(16.dp))
+                .padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -375,65 +376,62 @@ fun HorizontalDatePicker(
     }
 }
 
-// Custom amoled weekly bar chart
+// Custom amoled weekly sharp line chart with glowing points
 @Composable
 fun WeeklyNutritionBarChart(weeklyCaloriesMap: Map<String, Int>) {
     val dates = weeklyCaloriesMap.keys.sorted().takeLast(7)
     val values = dates.map { weeklyCaloriesMap[it] ?: 0 }
-    val maxValue = values.maxOrNull()?.coerceAtLeast(2000) ?: 2000
+    
+    val chartEntries = values.mapIndexed { index, vol ->
+        com.patrykandpatrick.vico.core.entry.entryOf(index.toFloat(), vol.toFloat())
+    }
+    
+    val chartEntryModel = if (chartEntries.isNotEmpty()) {
+        com.patrykandpatrick.vico.core.entry.entryModelOf(chartEntries)
+    } else {
+        com.patrykandpatrick.vico.core.entry.entryModelOf(listOf(com.patrykandpatrick.vico.core.entry.entryOf(0f, 0f), com.patrykandpatrick.vico.core.entry.entryOf(1f, 0f)))
+    }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .height(70.dp),
-        horizontalArrangement = Arrangement.SpaceAround,
-        verticalAlignment = Alignment.Bottom
-    ) {
-        dates.forEachIndexed { i, dateString ->
-            val calories = weeklyCaloriesMap[dateString] ?: 0
-            val fraction = calories.toFloat() / maxValue
-            val heightPercent = fraction.coerceIn(0.05f, 1f)
+    val accentColor = AccentAmber
 
-            val displayDay = getShortDayName(dateString)
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Bottom,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = if (calories > 0) "${calories}" else "-",
-                    fontSize = 10.sp,
-                    color = if (calories > 0) Color.White else TextSecundario,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-
-                // The bar
-                Canvas(
-                    modifier = Modifier
-                        .fillMaxWidth(0.5f)
-                        .height(40.dp * heightPercent)
-                ) {
-                    drawRect(
-                        color = if (calories > 0) Color.White else BorderColorSubtle,
-                        size = size
+    Box(modifier = Modifier.fillMaxWidth().height(120.dp).padding(vertical = 8.dp)) {
+        com.patrykandpatrick.vico.compose.chart.Chart(
+            chart = com.patrykandpatrick.vico.compose.chart.line.lineChart(
+                lines = listOf(
+                    com.patrykandpatrick.vico.compose.chart.line.lineSpec(
+                        lineColor = accentColor,
+                        lineThickness = 2.dp,
+                        lineBackgroundShader = com.patrykandpatrick.vico.core.component.shape.shader.DynamicShaders.fromBrush(
+                            androidx.compose.ui.graphics.Brush.verticalGradient(listOf(accentColor.copy(alpha = 0.3f), Color.Transparent))
+                        ),
+                        point = com.patrykandpatrick.vico.compose.component.shapeComponent(
+                            shape = com.patrykandpatrick.vico.core.component.shape.Shapes.pillShape, 
+                            color = Color.White, 
+                            strokeWidth = 2.dp, 
+                            strokeColor = accentColor
+                        ),
+                        pointSize = 8.dp,
+                        pointConnector = com.patrykandpatrick.vico.core.chart.DefaultPointConnector(cubicStrength = 0f) // Sharp peaks
                     )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = displayDay,
-                    fontSize = 11.sp,
-                    color = TextSecundario,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1
                 )
-            }
-        }
+            ),
+            model = chartEntryModel,
+            startAxis = null,
+            bottomAxis = com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis(
+                label = com.patrykandpatrick.vico.compose.axis.axisLabelComponent(color = TextSecundario, textSize = 10.sp),
+                valueFormatter = { value, _ -> 
+                    val index = value.toInt()
+                    if (index >= 0 && index < dates.size) {
+                        getShortDayName(dates[index])
+                    } else {
+                        ""
+                    }
+                },
+                axis = null, tick = null, guideline = null
+            ),
+            chartScrollState = com.patrykandpatrick.vico.compose.chart.scroll.rememberChartScrollState(),
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -461,66 +459,84 @@ fun UnifiedMealCard(
     var descriptionInput by remember { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    // Group meals by category for display
-    val mealsByCategory = categories.associateWith { cat -> meals.filter { it.category == cat } }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .supercardGlassModifier(RoundedCornerShape(16.dp))
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Title
-        Text(
-            text = stringResource(R.string.nut_log_food_title),
-            style = AppTextStyle.statBig.copy(color = Color.White)
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.AutoAwesome,
+                contentDescription = null,
+                tint = AccentPurple,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.nut_log_food_title),
+                style = AppTextStyle.statBig.copy(color = Color.White, fontSize = 15.sp)
+            )
+        }
 
-        // Category chip selector
+        // Compact Category chip selector (Row with weights to prevent clipping)
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             categories.forEach { cat ->
                 val isSelected = cat == selectedCategory
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .then(
-                            if (isSelected) {
-                                Modifier
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(Color.White.copy(alpha = 0.97f))
-                            } else {
-                                Modifier.metricCellGlassModifier(RoundedCornerShape(8.dp))
-                            }
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(
+                            if (isSelected) Color.White.copy(alpha = 0.9f)
+                            else Color.White.copy(alpha = 0.05f)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = if (isSelected) Color.Transparent else Color.White.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(20.dp)
                         )
                         .clickable { selectedCategory = cat }
-                        .padding(vertical = 8.dp),
+                        .padding(horizontal = 2.dp, vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = getTranslatedCategory(cat),
-                        color = if (isSelected) Color.Black else TextSecundario,
-                        fontSize = 11.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        textAlign = TextAlign.Center
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                        categoryIcons[cat]?.let { icon ->
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                tint = if (isSelected) Color.Black else TextSecundario,
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Spacer(modifier = Modifier.width(2.dp))
+                        }
+                        Text(
+                            text = getTranslatedCategory(cat),
+                            color = if (isSelected) Color.Black else TextSecundario,
+                            fontSize = 10.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            maxLines = 1,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        )
+                    }
                 }
             }
         }
 
-        // Natural language text field
+        // Integrated natural language text field with trailing button
         OutlinedTextField(
             value = descriptionInput,
             onValueChange = { descriptionInput = it },
             placeholder = {
                 Text(
-                    text = stringResource(R.string.nut_example_placeholder),
-                    fontSize = 11.sp,
-                    color = TextSecundario,
-                    lineHeight = 16.sp
+                    text = "Ej. 2 huevos y un café negro...",
+                    fontSize = 12.sp,
+                    color = TextSecundario
                 )
             },
             modifier = Modifier
@@ -529,63 +545,49 @@ fun UnifiedMealCard(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
-                focusedBorderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent,
-                cursorColor = Color.White,
-                focusedContainerColor = Color.White.copy(alpha = 0.08f),
-                unfocusedContainerColor = Color.White.copy(alpha = 0.08f)),
-            shape = RoundedCornerShape(12.dp),
-            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-            minLines = 1,
-            maxLines = 3
-        )
-
-        // AI analyze button
-        Button(
-            onClick = {
-                if (descriptionInput.trim().isNotEmpty()) {
-                    keyboardController?.hide()
-                    onLogMeal(selectedCategory, descriptionInput.trim())
-                    descriptionInput = ""
-                }
-            },
-            enabled = !mealAnalysisLoading && descriptionInput.trim().isNotEmpty(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(46.dp)
-                .supercardGlassModifier(RoundedCornerShape(10.dp))
-                .testTag("unified_log_meal_button"),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = AccentPurple.copy(alpha = 0.15f),
-                contentColor = AccentPurple,
-                disabledContainerColor = BorderColorSubtle,
-                disabledContentColor = TextSecundario
+                focusedBorderColor = AccentPurple,
+                unfocusedBorderColor = Color.White.copy(alpha = 0.15f),
+                cursorColor = AccentPurple,
+                focusedContainerColor = Color.Black.copy(alpha = 0.4f),
+                unfocusedContainerColor = Color.Black.copy(alpha = 0.4f)
             ),
-            shape = RoundedCornerShape(10.dp)
-        ) {
-            if (mealAnalysisLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    color = AccentPurple,
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = "IA",
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.nut_analyze_ai),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
-                    )
+            shape = RoundedCornerShape(16.dp),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+            singleLine = true,
+            trailingIcon = {
+                val isEnabled = !mealAnalysisLoading && descriptionInput.trim().isNotEmpty()
+                Box(
+                    modifier = Modifier
+                        .padding(end = 6.dp)
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(if (isEnabled) AccentPurple else BorderColorSubtle)
+                        .clickable(enabled = isEnabled) {
+                            if (isEnabled) {
+                                keyboardController?.hide()
+                                onLogMeal(selectedCategory, descriptionInput.trim())
+                                descriptionInput = ""
+                            }
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (mealAnalysisLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Send,
+                            contentDescription = "Analizar con IA",
+                            tint = if (isEnabled) Color.White else TextSecundario,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
                 }
             }
-        }
-
+        )
     }
 }
 
@@ -601,14 +603,14 @@ fun MealHistoryContent(
         modifier = Modifier
             .fillMaxWidth()
             .supercardGlassModifier(RoundedCornerShape(16.dp))
-            .padding(vertical = 8.dp),
+            .padding(16.dp),
     ) {
         if (!hasAny) {
             Text(
                 text = stringResource(R.string.nut_no_meals_today),
                 fontSize = 12.sp,
                 color = TextSecundario,
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
                 textAlign = TextAlign.Center
             )
         } else {
@@ -641,7 +643,7 @@ fun MealListItem(meal: Meal, onDeleteMeal: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Vertical color bar

@@ -109,7 +109,16 @@ fun PlanDaysScreen(
     val routinesListState = rememberLazyListState()
     val exercisesListState = rememberLazyListState()
     val currentListState = if (activePlanTab == 0) routinesListState else exercisesListState
-    val isFabVisible by remember { derivedStateOf { !currentListState.isScrollInProgress } }
+    var isFabVisible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(currentListState.isScrollInProgress) {
+        if (currentListState.isScrollInProgress) {
+            isFabVisible = false
+        } else {
+            kotlinx.coroutines.delay(1500)
+            isFabVisible = true
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -960,7 +969,8 @@ fun PlanDaysScreen(
                 exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.slideOutVertically(targetOffsetY = { 100 }),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(end = 24.dp, bottom = 24.dp)
+                    .padding(end = 16.dp, bottom = 12.dp)
+                    .offset(y = 5.dp)
             ) {
                 FloatingActionButton(
                     onClick = {

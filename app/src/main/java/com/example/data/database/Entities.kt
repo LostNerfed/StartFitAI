@@ -21,7 +21,15 @@ data class FitSettings(
     val activityLevel: String = "Sedentario",
     val weightUnit: String = "kg", // "kg" or "lb"
     val heightUnit: String = "cm",  // "cm" or "in"
-    val weightHistory: List<WeightEntry> = emptyList()
+    val weightHistory: List<WeightEntry> = emptyList(),
+    val lastDiscoverDate: String = "",
+    val cachedDiscoverChallenge: String = "",
+    val cachedDiscoverTip: String = "",
+    val cachedDiscoverRoutine: String = "",
+    val lastRoutineFetchTimestamp: Long = 0L,
+    val cachedSuggestedRoutines: String = "",
+    val cachedPrimerosPasosTip: String = "",
+    val lastTipFetchTimestamp: Long = 0L
 ) : Serializable
 
 data class WeightEntry(

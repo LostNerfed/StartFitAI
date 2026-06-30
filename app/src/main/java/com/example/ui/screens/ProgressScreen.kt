@@ -32,6 +32,7 @@ import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.core.chart.line.LineChart
 import com.patrykandpatrick.vico.compose.chart.scroll.rememberChartScrollState
+import com.patrykandpatrick.vico.compose.component.shape.shader.fromBrush
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -287,10 +288,6 @@ fun ProgressScreen(
             val volumeConverted = if (totalVolume > 0) viewModel.formatDisplayWeight(totalVolume) else "--"
             val totalSets = logs.size
             
-            Column(modifier = Modifier.fillMaxWidth()) {
-                // Vico Chart for Volume Trend
-                // Mapa Muscular Heatmap
-                
                 val heatmapData by viewModel.heatmapData.collectAsState()
                 val muscleVolumes = remember(heatmapData) {
                     val map = mutableMapOf<String, Double>()
@@ -300,57 +297,155 @@ fun ProgressScreen(
                     map
                 }
                 
-                MuscleHeatmap(
-                    muscleVolumes = muscleVolumes,
-                    volumeConverted = volumeConverted,
-                    totalSets = totalSets,
-                    volumeUnit = viewModel.getUnitString().lowercase(),
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
+                val topMuscle = muscleVolumes.maxByOrNull { it.value }
+                val topMuscleName = topMuscle?.key?.replaceFirstChar { if (it.isLowerCase()) it.titlecase(java.util.Locale.getDefault()) else it.toString() } ?: "N/A"
+                val topMuscleVolumeStr = viewModel.formatDisplayWeight(topMuscle?.value ?: 0.0)
 
-                val sortedSessions = sessions.sortedBy { it.dateMillis }
-                var runningTotal = 0.0
-                val cumulativeData = sortedSessions.map { session ->
-                    val sessionVolume = logs.filter { it.sessionId == session.id }.sumOf { 
-                        val w = if (it.weightKg > 0.0) it.weightKg else 20.0
-                        w * it.reps 
+                val pagerState = androidx.compose.foundation.pager.rememberPagerState(pageCount = { 2 })
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    androidx.compose.foundation.pager.HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { page ->
+                        when(page) {
+                            0 -> {
+                                MuscleHeatmap(
+                                    muscleVolumes = muscleVolumes,
+                                    volumeConverted = volumeConverted,
+                                    totalSets = totalSets,
+                                    volumeUnit = viewModel.getUnitString().lowercase(),
+                                    modifier = Modifier
+                                        .height(280.dp)
+                                        .padding(bottom = 12.dp)
+                                )
+                            }
+                            1 -> {
+                                val sortedSessions = sessions.sortedBy { it.dateMillis }
+                                var runningTotal = 0.0
+                                val cumulativeData = sortedSessions.map { session ->
+                                    val sessionVolume = logs.filter { it.sessionId == session.id }.sumOf { 
+                                        val w = if (it.weightKg > 0.0) it.weightKg else 20.0
+                                        w * it.reps 
+                                    }
+                                    runningTotal += sessionVolume
+                                    runningTotal
+                                }
+
+                                val recentCumulative = cumulativeData.takeLast(7)
+                                val paddedCumulative = if (recentCumulative.size < 7) {
+                                    List(7 - recentCumulative.size) { 0.0 } + recentCumulative
+                                } else {
+                                    recentCumulative
+                                }
+                                val chartEntries = paddedCumulative.mapIndexed { index, vol ->
+                                    val displayVol = viewModel.getDisplayWeight(vol)
+                                    entryOf(index.toFloat(), displayVol.toFloat())
+                                }
+                                val chartEntryModel = entryModelOf(chartEntries)
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(280.dp)
+                                        .padding(bottom = 12.dp)
+                                        .supercardGlassModifier(RoundedCornerShape(20.dp))
+                                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp, end = 4.dp)
+                                ) {
+                                    Column(modifier = Modifier.fillMaxSize()) {
+                                        Text(stringResource(R.string.prog_accumulated_volume), style = AppTextStyle.statSmall.copy(color = Color.White, fontSize = 14.sp))
+                                        Spacer(modifier = Modifier.height(9.dp))
+                                        
+                                        // Vico chart natively stretched to fill the width
+                                        Chart(
+                                            chart = com.patrykandpatrick.vico.compose.chart.line.lineChart(
+                                                lines = listOf(
+                                                    com.patrykandpatrick.vico.compose.chart.line.lineSpec(
+                                                        lineColor = AccentPrimary,
+                                                        lineThickness = 2.dp,
+                                                        lineBackgroundShader = com.patrykandpatrick.vico.core.component.shape.shader.DynamicShaders.fromBrush(
+                                                            androidx.compose.ui.graphics.Brush.verticalGradient(listOf(AccentPrimary.copy(alpha = 0.3f), Color.Transparent))
+                                                        ),
+                                                        point = com.patrykandpatrick.vico.compose.component.shapeComponent(
+                                                            shape = com.patrykandpatrick.vico.core.component.shape.Shapes.pillShape, 
+                                                            color = Color.White, 
+                                                            strokeWidth = 2.dp, 
+                                                            strokeColor = AccentPrimary
+                                                        ),
+                                                        pointSize = 8.dp,
+                                                        pointConnector = com.patrykandpatrick.vico.core.chart.DefaultPointConnector(cubicStrength = 0.5f)
+                                                    )
+                                                )
+                                            ),
+                                            model = chartEntryModel,
+                                            startAxis = com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis(
+                                                label = com.patrykandpatrick.vico.compose.axis.axisLabelComponent(
+                                                    color = TextSecundario, 
+                                                    textSize = 8.sp,
+                                                    horizontalMargin = 3.dp // 3dp distance from scales
+                                                ),
+                                                axis = null, 
+                                                tick = null, 
+                                                guideline = com.patrykandpatrick.vico.compose.component.lineComponent(
+                                                    color = Color.White.copy(alpha = 0.05f), 
+                                                    thickness = 1.dp
+                                                ),
+                                                itemPlacer = com.patrykandpatrick.vico.core.axis.AxisItemPlacer.Vertical.default(maxItemCount = 8),
+                                                valueFormatter = com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter { value, _ -> value.toInt().toString() }
+                                            ),
+                                            endAxis = null,
+                                            bottomAxis = com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis(
+                                                label = null,
+                                                tick = null,
+                                                axis = null,
+                                                guideline = com.patrykandpatrick.vico.compose.component.lineComponent(
+                                                    color = Color.White.copy(alpha = 0.05f), 
+                                                    thickness = 1.dp
+                                                )
+                                            ),
+                                            chartScrollState = rememberChartScrollState(),
+                                            chartScrollSpec = com.patrykandpatrick.vico.compose.chart.scroll.rememberChartScrollSpec(isScrollEnabled = false),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f)
+                                                .padding(end = 9.dp, top = 9.dp)
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.height(11.dp))
+                                        
+                                        // Top Muscle info at the bottom
+                                        Text(text = "Músculo Más Trabajado:", fontSize = 12.sp, color = TextSecundario)
+                                        Text(
+                                            text = "$topMuscleName ($topMuscleVolumeStr ${viewModel.getUnitString().lowercase()})", 
+                                            fontSize = 15.sp, 
+                                            fontWeight = FontWeight.Bold, 
+                                            color = AccentAmber
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
-                    runningTotal += sessionVolume
-                    runningTotal
-                }
 
-                val recentCumulative = cumulativeData.takeLast(14)
-                if (recentCumulative.size > 1) {
-                    val chartEntries = recentCumulative.mapIndexed { index, vol ->
-                        val displayVol = viewModel.getDisplayWeight(vol)
-                        entryOf(index.toFloat(), displayVol.toFloat())
-                    }
-                    val chartEntryModel = entryModelOf(chartEntries)
-
-                    Box(
+                    // Dot indicators
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(180.dp)
-                            .supercardGlassModifier(RoundedCornerShape(20.dp))
-                            .padding(16.dp)
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Column {
-                            Text(stringResource(R.string.prog_accumulated_volume), style = AppTextStyle.statSmall.copy(color = Color.White))
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Chart(
-                                chart = lineChart(),
-                                model = chartEntryModel,
-                                startAxis = rememberStartAxis(
-                                    label = com.patrykandpatrick.vico.compose.axis.axisLabelComponent(color = TextSecundario, textSize = 8.sp),
-                                    axis = null, tick = null, guideline = null
-                                ),
-                                bottomAxis = null,
-                                chartScrollState = rememberChartScrollState()
+                        repeat(2) { iteration ->
+                            val color = if (pagerState.currentPage == iteration) Color.White else Color.DarkGray
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 4.dp)
+                                    .clip(CircleShape)
+                                    .background(color)
+                                    .size(8.dp)
                             )
                         }
                     }
                 }
-            }
         }
 
         // Historial de Ejercicios y Récords
@@ -646,3 +741,4 @@ data class RecordData(
     val reps: Int,
     val dateMillis: Long
 )
+

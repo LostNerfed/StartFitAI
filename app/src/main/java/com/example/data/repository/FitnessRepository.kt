@@ -198,6 +198,10 @@ class FitnessRepository(context: Context) {
         return dao.watchLogsForSession(sessionId).first().map { it.toDomain() }
     }
 
+    suspend fun getAllLogsSync(): List<SessionLog> {
+        return dao.getAllLogs().map { it.toDomain() }
+    }
+
     val allLogs: Flow<List<SessionLog>> = dao.watchAllLogs().map { list ->
         list.map { it.toDomain() }
     }
@@ -487,7 +491,15 @@ private fun FitSettingsEntity.toDomain() = FitSettings(
     iaProvider = preferredAiModel,
     weightUnit = weightUnit,
     heightUnit = heightUnit,
-    activeSessionId = activeSessionId
+    activeSessionId = activeSessionId,
+    lastDiscoverDate = lastDiscoverDate,
+    cachedDiscoverChallenge = cachedDiscoverChallenge,
+    cachedDiscoverTip = cachedDiscoverTip,
+    cachedDiscoverRoutine = cachedDiscoverRoutine,
+    lastRoutineFetchTimestamp = lastRoutineFetchTimestamp,
+    cachedSuggestedRoutines = cachedSuggestedRoutines,
+    cachedPrimerosPasosTip = cachedPrimerosPasosTip,
+    lastTipFetchTimestamp = lastTipFetchTimestamp
 )
 
 private fun FitSettings.toEntity() = FitSettingsEntity(
@@ -507,6 +519,14 @@ private fun FitSettings.toEntity() = FitSettingsEntity(
     weightUnit = weightUnit,
     heightUnit = heightUnit,
     activeSessionId = activeSessionId,
+    lastDiscoverDate = lastDiscoverDate,
+    cachedDiscoverChallenge = cachedDiscoverChallenge,
+    cachedDiscoverTip = cachedDiscoverTip,
+    cachedDiscoverRoutine = cachedDiscoverRoutine,
+    lastRoutineFetchTimestamp = lastRoutineFetchTimestamp,
+    cachedSuggestedRoutines = cachedSuggestedRoutines,
+    cachedPrimerosPasosTip = cachedPrimerosPasosTip,
+    lastTipFetchTimestamp = lastTipFetchTimestamp,
     updatedAt = System.currentTimeMillis()
 )
 
